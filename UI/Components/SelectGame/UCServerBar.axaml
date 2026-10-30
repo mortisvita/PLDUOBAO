@@ -1,0 +1,122 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="140"
+             x:Class="PLDUOBAO.UCServerBar"
+             Loaded="onLoaded"
+             Background="Transparent">
+
+    <UserControl.Styles>
+        <Style Selector="Border.server-card">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.server-card:pointerover">
+            <Setter Property="RenderTransform" Value="translateY(-2px)"/>
+            <Setter Property="BoxShadow" Value="0 4 20 0 #30000000"/>
+        </Style>
+    </UserControl.Styles>
+    
+    <Border Classes="server-card"
+            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="12"
+            Margin="0,4">
+        
+        <Grid ColumnDefinitions="140,*,Auto">
+            <!-- 服务器图标 -->
+            <Border CornerRadius="8" ClipToBounds="True" Width="140" Height="100">
+                <Grid>
+                    <!-- 占位符 -->
+                    <Border x:Name="iconPlaceholder" Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                        <ui:SymbolIcon Symbol="Globe" FontSize="32" 
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                    </Border>
+                    
+                    <!-- 图片在上层 -->
+                    <Image x:Name="imgServerIcon"
+                           Stretch="UniformToFill"/>
+                </Grid>
+            </Border>
+            
+            <!-- 服务器信息 -->
+            <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Spacing="8">
+                <TextBlock x:Name="tbServerName" 
+                           Text="服务器名字可以很长很长" 
+                           FontSize="18" 
+                           FontWeight="SemiBold"
+                           TextTrimming="CharacterEllipsis"/>
+                
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ui:SymbolIcon Symbol="People" FontSize="14"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock x:Name="tbServerOnlineCount" 
+                                   Text="在线：-" 
+                                   FontSize="13"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Ellipse x:Name="statusIndicator" 
+                                 Width="8" Height="8" 
+                                 Fill="{DynamicResource SystemFillColorSuccessBrush}"
+                                 VerticalAlignment="Center"/>
+                        <TextBlock x:Name="tbServerOnlineStatus" 
+                                   Text="在线" 
+                                   FontSize="13"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ui:SymbolIcon Symbol="Clock" FontSize="14"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock x:Name="tbServerPing" 
+                                   Text="--ms" 
+                                   FontSize="13"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ui:SymbolIcon Symbol="Tag" FontSize="12"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                        <TextBlock x:Name="tbEntityId" 
+                                   Text="ID: --" 
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                   IsVisible="True"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ui:SymbolIcon Symbol="Link" FontSize="12"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                        <TextBlock x:Name="tbServerAddress" 
+                                   Text="连接: --" 
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                   IsVisible="True"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            
+            <!-- 加入按钮 -->
+            <Button x:Name="btnJoinGame" 
+                    Grid.Column="2" 
+                    Content="游玩" 
+                    Classes="accent"
+                    VerticalAlignment="Center"
+                    Padding="24,10"
+                    Click="onJoinGame"/>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,243 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="706"
+             x:Class="PLDUOBAO.UI.UCFirstLaunchTheme"
+             Background="Transparent">
+
+    <UserControl.Styles>
+        <!-- 主题预览卡片 -->
+        <Style Selector="Border.theme-card">
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.theme-card:pointerover">
+            <Setter Property="RenderTransform" Value="translateY(-4px)"/>
+            <Setter Property="BoxShadow" Value="0 12 32 0 #28000000"/>
+        </Style>
+        <Style Selector="Border.theme-card.selected">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+            <Setter Property="BoxShadow" Value="0 0 0 3 #40006EDE"/>
+        </Style>
+        <Style Selector="Border.theme-card.unselected">
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}"/>
+        </Style>
+
+    </UserControl.Styles>
+
+    <Grid>
+        <!-- 背景 -->
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="{DynamicResource SolidBackgroundFillColorBase}"
+                    TintOpacity="0.9"
+                    MaterialOpacity="0.7"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+
+        <Grid RowDefinitions="*,Auto">
+            <!-- 主内容 -->
+            <StackPanel Grid.Row="0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="0"
+                        MaxWidth="700">
+
+                <!-- 标题区域 -->
+                <StackPanel x:Name="titleSection" Spacing="10" Margin="0,0,0,40" Opacity="0">
+                    <StackPanel.RenderTransform>
+                        <TranslateTransform Y="24"/>
+                    </StackPanel.RenderTransform>
+                    <TextBlock Text="欢迎使用 PLDUOBAO"
+                               FontSize="32"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="选择你喜欢的外观主题，之后可以在设置中随时更改"
+                               FontSize="14"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+
+                <!-- 主题卡片区域 -->
+                <Grid x:Name="cardsSection" ColumnDefinitions="*,20,*" Opacity="0">
+                    <Grid.RenderTransform>
+                        <TranslateTransform Y="24"/>
+                    </Grid.RenderTransform>
+
+                    <!-- 浅色主题卡片 -->
+                    <Border Grid.Column="0"
+                            x:Name="lightCard"
+                            Classes="theme-card selected"
+                            Background="#F5F6F8"
+                            BoxShadow="0 4 20 0 #15000000"
+                            Padding="20,20,20,16">
+                        <StackPanel Spacing="14">
+
+                            <!-- 预览区：渐变色块模拟界面 -->
+                            <Border Height="180" CornerRadius="10" ClipToBounds="True"
+                                    Background="#FFFFFF"
+                                    BorderBrush="#E8E9EC" BorderThickness="1">
+                                <Grid ColumnDefinitions="72,*" >
+                                    <!-- 侧边栏 -->
+                                    <Border Grid.Column="0" Background="#F2F3F5">
+                                        <StackPanel Margin="10,16,10,0" Spacing="4">
+                                            <Border Height="6" CornerRadius="3" Background="#D0D2D8" Margin="0,0,0,12"/>
+                                            <Border Height="32" CornerRadius="6" Background="{DynamicResource AccentFillColorDefaultBrush}" Opacity="0.85"/>
+                                            <Border Height="32" CornerRadius="6" Background="#E8E9EC"/>
+                                            <Border Height="32" CornerRadius="6" Background="#E8E9EC"/>
+                                            <Border Height="32" CornerRadius="6" Background="#E8E9EC"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <!-- 内容区 -->
+                                    <StackPanel Grid.Column="1" Margin="16,16,16,0" Spacing="8">
+                                        <Border Height="7" CornerRadius="3.5" Background="#C8CACF" Width="110" HorizontalAlignment="Left"/>
+                                        <Border Height="5" CornerRadius="2.5" Background="#E2E3E8" Width="160" HorizontalAlignment="Left"/>
+                                        <Border Height="1" Background="#EAEBEE" Margin="0,4,0,4"/>
+                                        <Border Height="36" CornerRadius="7" Background="#F5F6F8"/>
+                                        <Border Height="36" CornerRadius="7" Background="#F5F6F8"/>
+                                        <Border Height="36" CornerRadius="7" Background="#F5F6F8"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- 标签 -->
+                            <StackPanel HorizontalAlignment="Center" Spacing="3">
+                                <TextBlock Text="浅色" FontSize="15" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" Foreground="#1A1A1A"/>
+                                <TextBlock Text="清爽明亮的视觉体验" FontSize="12"
+                                           HorizontalAlignment="Center" Foreground="#5C5C5C"/>
+                            </StackPanel>
+
+                            <!-- 选中指示 -->
+                            <Border x:Name="lightCheckmark" HorizontalAlignment="Center"
+                                    Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                    CornerRadius="20" Width="26" Height="26" Opacity="1">
+                                <TextBlock Text="✓" FontSize="12" FontWeight="Bold" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 深色主题卡片 -->
+                    <Border Grid.Column="2"
+                            x:Name="darkCard"
+                            Classes="theme-card unselected"
+                            Background="#1C1C1E"
+                            BoxShadow="0 4 20 0 #40000000"
+                            Padding="20,20,20,16">
+                        <StackPanel Spacing="14">
+
+                            <!-- 预览区 -->
+                            <Border Height="180" CornerRadius="10" ClipToBounds="True"
+                                    Background="#2C2C2E"
+                                    BorderBrush="#3A3A3C" BorderThickness="1">
+                                <Grid ColumnDefinitions="72,*">
+                                    <!-- 侧边栏 -->
+                                    <Border Grid.Column="0" Background="#232325">
+                                        <StackPanel Margin="10,16,10,0" Spacing="4">
+                                            <Border Height="6" CornerRadius="3" Background="#48484A" Margin="0,0,0,12"/>
+                                            <Border Height="32" CornerRadius="6" Background="{DynamicResource AccentFillColorDefaultBrush}" Opacity="0.9"/>
+                                            <Border Height="32" CornerRadius="6" Background="#3A3A3C"/>
+                                            <Border Height="32" CornerRadius="6" Background="#3A3A3C"/>
+                                            <Border Height="32" CornerRadius="6" Background="#3A3A3C"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <!-- 内容区 -->
+                                    <StackPanel Grid.Column="1" Margin="16,16,16,0" Spacing="8">
+                                        <Border Height="7" CornerRadius="3.5" Background="#AEAEB2" Width="110" HorizontalAlignment="Left"/>
+                                        <Border Height="5" CornerRadius="2.5" Background="#48484A" Width="160" HorizontalAlignment="Left"/>
+                                        <Border Height="1" Background="#3A3A3C" Margin="0,4,0,4"/>
+                                        <Border Height="36" CornerRadius="7" Background="#323234"/>
+                                        <Border Height="36" CornerRadius="7" Background="#323234"/>
+                                        <Border Height="36" CornerRadius="7" Background="#323234"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- 标签 -->
+                            <StackPanel HorizontalAlignment="Center" Spacing="3">
+                                <TextBlock Text="深色" FontSize="15" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" Foreground="#E8E8E8"/>
+                                <TextBlock Text="护眼舒适的暗色环境" FontSize="12"
+                                           HorizontalAlignment="Center" Foreground="#8E8E93"/>
+                            </StackPanel>
+
+                            <!-- 选中指示 -->
+                            <Border x:Name="darkCheckmark" HorizontalAlignment="Center"
+                                    Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                    CornerRadius="20" Width="26" Height="26" Opacity="0">
+                                <TextBlock Text="✓" FontSize="12" FontWeight="Bold" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- 跟随系统选项 -->
+                <Border x:Name="systemThemeSection"
+                        Margin="0,20,0,0"
+                        Padding="16,12"
+                        CornerRadius="10"
+                        Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        Opacity="0">
+                    <Border.RenderTransform>
+                        <TranslateTransform Y="16"/>
+                    </Border.RenderTransform>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="跟随系统主题"
+                                       FontSize="14"
+                                       FontWeight="Medium"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="自动跟随 Windows 深色 / 浅色模式切换"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="1"
+                                      x:Name="systemThemeToggle"
+                                      VerticalAlignment="Center"
+                                      IsCheckedChanged="SystemThemeToggle_Changed"
+                                      OffContent=""
+                                      OnContent=""/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- 底部按钮 -->
+            <Border Grid.Row="1"
+                    x:Name="bottomBar"
+                    Padding="40,16"
+                    Opacity="0">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0"
+                               Text="你可以随时在 设置 → 外观 中更改主题"
+                               FontSize="12"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                    <Button Grid.Column="1"
+                            x:Name="nextButton"
+                            Content="下一步"
+                            Classes="accent"
+                            Width="110"
+                            Height="40"
+                            FontSize="14"
+                            Click="NextButton_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

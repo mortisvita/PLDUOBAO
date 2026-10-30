@@ -1,0 +1,157 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="560" d:DesignHeight="640"
+             x:Class="PLDUOBAO.UCDialogAccountExport">
+
+    <UserControl.Styles>
+        <Style Selector="Border.export-overlay">
+            <Setter Property="Background" Value="#80000000"/>
+        </Style>
+
+        <Style Selector="Border.export-card">
+            <Setter Property="Background" Value="{DynamicResource SolidBackgroundFillColorBaseBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BoxShadow" Value="0 8 32 0 #40000000"/>
+        </Style>
+
+        <Style Selector="CheckBox.acct-check">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style Selector="Button.header-icon-btn">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorTransparentBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.12"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.header-icon-btn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+        </Style>
+
+        <Style Selector="Button.header-text-btn">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorTransparentBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.12"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.header-text-btn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+        </Style>
+
+        <Style Selector="Button.primary-btn">
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.12"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.primary-btn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorSecondaryBrush}"/>
+        </Style>
+        <Style Selector="Button.primary-btn:disabled">
+            <Setter Property="Opacity" Value="0.4"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Classes="export-overlay" x:Name="exportOverlay">
+        <Border Classes="export-card"
+                x:Name="exportCard"
+                Width="560"
+                Height="640"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+
+            <Grid RowDefinitions="Auto,*,Auto">
+
+                <Grid Grid.Row="0" RowDefinitions="Auto,Auto" Margin="20,18,20,8">
+
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="导出账户"
+                                       FontSize="22"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock x:Name="tbStatus"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                           Text="0 个账户可导出"/>
+                                <Border Width="4" Height="4" CornerRadius="2"
+                                        VerticalAlignment="Center"
+                                        Background="{DynamicResource AccentFillColorDefaultBrush}"/>
+                                <TextBlock x:Name="tbSelectedCount"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                           Text="已选 0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Classes="header-icon-btn"
+                                Click="onCancel"
+                                ToolTip.Tip="关闭">
+                            <ui:SymbolIcon Symbol="Cancel" FontSize="14"/>
+                        </Button>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,12,0,0">
+                        <Button Content="全选" Classes="header-text-btn" Click="onSelectAll"/>
+                        <Button Content="反选" Classes="header-text-btn" Click="onSelectInverse"/>
+                        <Button Content="只选 sauth" Classes="header-text-btn" Click="onSelectSAuthOnly"/>
+                    </StackPanel>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" Margin="20,8,20,12">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="账户列表"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        <StackPanel x:Name="listAccounts" Spacing="6"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Row="2"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="0,1,0,0"
+                        Padding="20,14">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Spacing="8">
+                        <Button Content="取消" Classes="header-text-btn" Click="onCancel"/>
+                        <Button x:Name="btnExport" Content="导出选中" Classes="primary-btn" Click="onExport"/>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+        </Border>
+    </Border>
+</UserControl>

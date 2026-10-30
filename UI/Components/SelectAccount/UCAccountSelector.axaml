@@ -1,0 +1,81 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="64"
+             x:Class="PLDUOBAO.UCAccountSelector">
+    
+    <Border Classes="account-item"
+            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="16,12">
+        
+        <Grid ColumnDefinitions="Auto,*,Auto">
+            <Border Width="40" Height="40" CornerRadius="20" 
+                    Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                <ui:SymbolIcon Symbol="Contact" FontSize="18"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </Border>
+            
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,16,0">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock x:Name="tbUsername" 
+                               Text="网易 - 用户名"
+                               FontSize="14"
+                               FontWeight="Medium"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                    <Border x:Name="bdNickname"
+                            IsVisible="False"
+                            Background="{DynamicResource SubtleFillColorTertiaryBrush}"
+                            CornerRadius="4"
+                            Padding="6,2">
+                        <TextBlock x:Name="tbNickname" 
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <Button x:Name="btnEditCredentials"
+                        ToolTip.Tip="编辑账号密码"
+                        Height="32"
+                        Width="32"
+                        Padding="0"
+                        CornerRadius="6"
+                        Classes="secondary"
+                        IsVisible="False"
+                        Click="onEditCredentials">
+                    <ui:SymbolIcon Symbol="Permissions" FontSize="14"/>
+                </Button>
+                <Button ToolTip.Tip="编辑备注"
+                        Height="32"
+                        Width="32"
+                        Padding="0"
+                        CornerRadius="6"
+                        Classes="secondary"
+                        Click="onEditNickname">
+                    <ui:SymbolIcon Symbol="Edit" FontSize="14"/>
+                </Button>
+                <Button Content="删除"
+                        Height="32"
+                        Padding="12,0"
+                        CornerRadius="6"
+                        FontSize="13"
+                        Classes="secondary"
+                        Click="onDeleteAccount"/>
+                <Button Content="使用"
+                        Height="32"
+                        Padding="16,0"
+                        CornerRadius="6"
+                        FontSize="13"
+                        Click="onUseAccount"
+                        Classes="accent"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

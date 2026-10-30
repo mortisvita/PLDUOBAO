@@ -1,0 +1,158 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:effects="using:PLDUOBAO.UI.Effects"
+             xmlns:local="using:PLDUOBAO"
+             mc:Ignorable="d" d:DesignWidth="880" d:DesignHeight="600"
+             Loaded="onLoaded"
+             x:Class="PLDUOBAO.UCCookieSelector">
+    
+    <UserControl.Styles>
+        <Style Selector="UserControl > Grid.main-grid">
+            <Setter Property="Opacity" Value="0"/>
+        </Style>
+        <Style Selector="UserControl > Grid.main-grid.show">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+        <Style Selector="UserControl > Grid.main-grid">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button.export-btn">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorTransparentBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.12"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.export-btn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+        </Style>
+        <Style Selector="Button.export-btn:disabled">
+            <Setter Property="Opacity" Value="0.4"/>
+        </Style>
+    </UserControl.Styles>
+    
+    <Panel>
+        <Grid x:Name="mainGrid" Classes="main-grid" ColumnDefinitions="200,*">
+            <Grid RowDefinitions="Auto,*">
+                <StackPanel Margin="12,24,12,16">
+                    <effects:LineTextBlock Text="账户管理"
+                                           FontSize="22"/>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Margin="8,0,8,0" Spacing="2">
+                    <Button x:Name="tabAccounts" Classes="nav-item" Click="OnTabAccountsClick">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ui:SymbolIcon Symbol="People" FontSize="16"/>
+                            <TextBlock Text="已保存账户" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="tabLogin" Classes="nav-item inactive" Click="OnTabLoginClick">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <ui:SymbolIcon Symbol="Add" FontSize="16"/>
+                            <TextBlock Text="添加账户" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            
+            <Panel Grid.Column="1" Background="Transparent">
+                <Grid x:Name="pageAccounts" Margin="24,40,24,24" RowDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Row="0"
+                               Text="已保存账户"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                               Margin="0,0,0,16"/>
+                    <ScrollViewer Grid.Row="1">
+                        <ListBox x:Name="listCookieList" Background="Transparent" SelectionMode="Single">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Spacing="8"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </ScrollViewer>
+                    <Grid Grid.Row="2" Margin="0,16,0,0">
+                        <Button x:Name="btnExportAccounts"
+                                Click="onExportAccounts"
+                                HorizontalAlignment="Right"
+                                Classes="export-btn">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <ui:SymbolIcon Symbol="Upload" FontSize="14"/>
+                                <TextBlock Text="导出账户"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Grid>
+                
+                <Grid x:Name="pageLogin" IsVisible="False" Margin="24" RowDefinitions="Auto,*">
+                    <TextBlock Text="添加账户"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                               Margin="0,0,0,16"/>
+
+                    <ScrollViewer Grid.Row="1">
+                        <StackPanel Spacing="16">
+                            <Border x:Name="panel4399" Classes="form-card">
+                                <StackPanel Spacing="16">
+                                    <TextBlock Text="4399 账号" FontWeight="SemiBold" 
+                                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                                    <TextBox x:Name="tbUsername4399" Watermark="4399 账号" Height="42"/>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBox x:Name="tbPassword4399" Watermark="密码" PasswordChar="●" Height="42"/>
+                                        <Button x:Name="btnToggle4399Password" 
+                                                Grid.Column="1" 
+                                                Width="42" Height="42" 
+                                                Margin="8,0,0,0"
+                                                Padding="0"
+                                                Click="OnToggle4399PasswordClick">
+                                            <ui:SymbolIcon x:Name="icon4399Password" Symbol="View" FontSize="16"/>
+                                        </Button>
+                                    </Grid>
+                                    <StackPanel x:Name="spVerifyCode" Spacing="8" IsVisible="False">
+                                        <Grid ColumnDefinitions="*,120">
+                                            <TextBox x:Name="tbVerifyCode4399" Watermark="验证码" Height="42"/>
+                                            <Border Grid.Column="1" Margin="8,0,0,0" 
+                                                    Background="{DynamicResource SubtleFillColorSecondaryBrush}" CornerRadius="4">
+                                                <Image x:Name="imgVerifyCode" Stretch="Uniform"/>
+                                            </Border>
+                                        </Grid>
+                                    </StackPanel>
+                                    <Button x:Name="btnLogin4399" Content="登录" Classes="primary-btn" HorizontalAlignment="Left" Click="onLogin4399"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Panel>
+        </Grid>
+        
+        <Border x:Name="loginOverlay"
+                Background="{DynamicResource SolidBackgroundFillColorBase}"
+                Opacity="0.88"
+                IsVisible="False"
+                IsHitTestVisible="True">
+            <local:LoadCard x:Name="loginLoadCard"
+                            BigTitle="正在登录..."
+                            Message="请稍候"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+        </Border>
+    </Panel>
+</UserControl>

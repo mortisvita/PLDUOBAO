@@ -1,0 +1,143 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="230"
+             Width="230"
+             x:Class="PLDUOBAO.UCToast">
+    <Border Name="PATH_Border"
+            Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+            Margin="15,5"
+            CornerRadius="8"
+            Padding="10"
+            BoxShadow="0 0 6 0 #40000000">
+        <Border.Styles>
+            <Style Selector="Border#PATH_Border">
+                <Style.Animations>
+                    <Animation Duration="0:0:0.8" Easing="ExponentialEaseOut">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1.02"/>
+                            <Setter Property="ScaleTransform.ScaleY" Value="1.02"/>
+                            <Setter Property="Margin" Value="230,5,-230,5"/>
+                        </KeyFrame>
+                        <KeyFrame Cue="98%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1.02"/>
+                            <Setter Property="ScaleTransform.ScaleY" Value="1.02"/>
+                            <Setter Property="Margin" Value="15,5"/>
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="ScaleTransform.ScaleX" Value="1"/>
+                            <Setter Property="ScaleTransform.ScaleY" Value="1"/>
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+        </Border.Styles>
+
+        <Border ClipToBounds="True">
+            <Grid RowDefinitions="28,*">
+                <Grid Margin="0,-4,0,0">
+                    <Grid Name="NoticeIcon"
+                          Width="18" Height="18"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Center">
+                        <Border x:Name="NoticeIconBadge"
+                                IsVisible="False"
+                                Width="18" Height="18"
+                                CornerRadius="9"/>
+                        <Ellipse x:Name="NoticeIconRing"
+                                 Stroke="{DynamicResource TextFillColorPrimaryBrush}"
+                                 StrokeThickness="1.3"/>
+                        <TextBlock x:Name="NoticeIconGlyph"
+                                   IsVisible="False"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   Margin="0,-1,0,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                        <TextBlock x:Name="NoticeIconText"
+                                   IsVisible="False"
+                                   Text="i"
+                                   FontSize="11"
+                                   FontStyle="Italic"
+                                   FontWeight="SemiBold"
+                                   Margin="0,-1,0,0"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                        <Grid.Styles>
+                            <Style Selector="Grid#NoticeIcon">
+                                <Style.Animations>
+                                    <Animation Duration="0:0:0.8" Easing="ExponentialEaseOut">
+                                        <KeyFrame Cue="0%">
+                                            <Setter Property="Margin" Value="40,0,-40,0"/>
+                                        </KeyFrame>
+                                        <KeyFrame Cue="60%">
+                                            <Setter Property="Margin" Value="40,0,-40,0"/>
+                                        </KeyFrame>
+                                        <KeyFrame Cue="100%">
+                                            <Setter Property="Margin" Value="0"/>
+                                        </KeyFrame>
+                                    </Animation>
+                                </Style.Animations>
+                            </Style>
+                        </Grid.Styles>
+                    </Grid>
+
+                    <TextBlock Name="NoticeTitle"
+                               Margin="26,-2,0,0"
+                               FontSize="16"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                               Text="提示">
+                        <TextBlock.Styles>
+                            <Style Selector="TextBlock#NoticeTitle">
+                                <Style.Animations>
+                                    <Animation Duration="0:0:0.8" Easing="ExponentialEaseOut">
+                                        <KeyFrame Cue="0%">
+                                            <Setter Property="Margin" Value="40,-2,-40,0"/>
+                                        </KeyFrame>
+                                        <KeyFrame Cue="60%">
+                                            <Setter Property="Margin" Value="40,-2,-40,0"/>
+                                        </KeyFrame>
+                                        <KeyFrame Cue="100%">
+                                            <Setter Property="Margin" Value="26,-2,0,0"/>
+                                        </KeyFrame>
+                                    </Animation>
+                                </Style.Animations>
+                            </Style>
+                        </TextBlock.Styles>
+                    </TextBlock>
+                </Grid>
+
+                <TextBlock Name="NoticeContent"
+                           Grid.Row="1"
+                           FontSize="11"
+                           Margin="0,2,0,0"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           Text="消息内容">
+                    <TextBlock.Styles>
+                        <Style Selector="TextBlock#NoticeContent">
+                            <Style.Animations>
+                                <Animation Duration="0:0:1" Easing="ExponentialEaseOut">
+                                    <KeyFrame Cue="0%">
+                                        <Setter Property="Margin" Value="40,2,-40,0"/>
+                                    </KeyFrame>
+                                    <KeyFrame Cue="70%">
+                                        <Setter Property="Margin" Value="40,2,-40,0"/>
+                                    </KeyFrame>
+                                    <KeyFrame Cue="100%">
+                                        <Setter Property="Margin" Value="0,2,0,0"/>
+                                    </KeyFrame>
+                                </Animation>
+                            </Style.Animations>
+                        </Style>
+                    </TextBlock.Styles>
+                </TextBlock>
+            </Grid>
+        </Border>
+    </Border>
+</UserControl>

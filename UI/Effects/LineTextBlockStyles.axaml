@@ -1,0 +1,82 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:effects="using:PLDUOBAO.UI.Effects">
+
+    <Style Selector="effects|LineTextBlock">
+        <Setter Property="FontSize" Value="28"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid HorizontalAlignment="Left" ColumnDefinitions="Auto">
+                    <Border Grid.Column="0"
+                            Background="{DynamicResource AccentFillColorDefaultBrush}"
+                            VerticalAlignment="Bottom"
+                            CornerRadius="4"
+                            Name="PATH_LineBorder"
+                            Height="8"/>
+                    <TextBlock Grid.Column="0"
+                               Text="{TemplateBinding Text}"
+                               FontSize="{TemplateBinding FontSize}"
+                               FontWeight="{TemplateBinding FontWeight}"
+                               Foreground="{TemplateBinding Foreground}"
+                               Margin="5,0"
+                               VerticalAlignment="Center"
+                               Name="PATH_TextBlock1"/>
+                    <TextBlock Grid.Column="0"
+                               Text="{TemplateBinding Text}"
+                               FontSize="{TemplateBinding FontSize}"
+                               FontWeight="{TemplateBinding FontWeight}"
+                               Margin="5,0"
+                               Opacity="0"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Name="PATH_TextBlock2"/>
+                    <Border Grid.Column="0"
+                            Height="6"
+                            Name="PATH_HaloBorder"
+                            VerticalAlignment="Bottom"
+                            ClipToBounds="True">
+                        <effects:PointHalo/>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^ Border#PATH_LineBorder">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Height" Duration="0:0:0.2" Easing="ExponentialEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="^ Border#PATH_HaloBorder">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Height" Duration="0:0:0.2" Easing="ExponentialEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="^ TextBlock#PATH_TextBlock2">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.38" Easing="ExponentialEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="^:pointerover Border#PATH_LineBorder">
+            <Setter Property="Height" Value="{Binding Bounds.Height, RelativeSource={RelativeSource AncestorType=Control}}"/>
+        </Style>
+        <Style Selector="^:pointerover Border#PATH_HaloBorder">
+            <Setter Property="Height" Value="{Binding Bounds.Height, RelativeSource={RelativeSource AncestorType=Control}}"/>
+        </Style>
+        <Style Selector="^:pointerover TextBlock#PATH_TextBlock2">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+        <Style Selector="^.dark-no-text-swap:pointerover TextBlock#PATH_TextBlock2">
+            <Setter Property="Opacity" Value="0"/>
+        </Style>
+    </Style>
+</Styles>

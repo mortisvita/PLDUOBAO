@@ -1,0 +1,127 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:local="using:PLDUOBAO"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="750"
+        x:Class="PLDUOBAO.MainWindow"
+        Title="PLDUOBAO Launcher"
+        Width="1100"
+        Height="750"
+        MinWidth="900"
+        MinHeight="650"
+        Loaded="Window_Loaded"
+        Background="{DynamicResource SolidBackgroundFillColorBase}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1">
+    
+    <Window.Styles>
+        <Style Selector="UserControl">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Border.card">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.card:pointerover">
+            <Setter Property="RenderTransform" Value="translateY(-2px)"/>
+            <Setter Property="BoxShadow" Value="0 6 20 0 #20000000"/>
+        </Style>
+
+        <Style Selector="Button.window-chrome-btn">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+        </Style>
+        <Style Selector="Button.window-chrome-btn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+        </Style>
+        <Style Selector="Button.window-chrome-btn:pressed">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}"/>
+        </Style>
+    </Window.Styles>
+
+    <Panel Background="{DynamicResource SolidBackgroundFillColorBase}">
+        <Grid x:Name="gridMainMenu"
+              Background="Transparent"
+              PointerPressed="OnContentPointerPressed">
+            <Border x:Name="loadingPanel"
+                    Background="{DynamicResource SolidBackgroundFillColorBase}"
+                    Opacity="0.88"
+                    IsVisible="True">
+                <local:LoadCard x:Name="startupLoadCard"
+                                BigTitle="正在加载..."
+                                Message="请稍候"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+            </Border>
+        </Grid>
+        
+        <StackPanel x:Name="toastHost"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,0,10"
+                    ZIndex="200"/>
+
+        <StackPanel VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Margin="0,22,22,0"
+                    Spacing="8"
+                    ZIndex="300">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Classes="window-chrome-btn"
+                        Click="OnMinimizeClick"
+                        ToolTip.Tip="最小化">
+                    <TextBlock FontFamily="Segoe Fluent Icons"
+                               Text="&#xE921;"
+                               FontSize="10"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Button>
+                <Button Classes="window-chrome-btn"
+                        Click="OnMaximizeClick"
+                        ToolTip.Tip="最大化">
+                    <TextBlock x:Name="maximizeIcon"
+                               FontFamily="Segoe Fluent Icons"
+                               Text="&#xE922;"
+                               FontSize="10"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Button>
+                <Button Classes="window-chrome-btn"
+                        Click="OnCloseClick"
+                        ToolTip.Tip="关闭">
+                    <TextBlock FontFamily="Segoe Fluent Icons"
+                               Text="&#xE8BB;"
+                               FontSize="10"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Panel>
+</Window>

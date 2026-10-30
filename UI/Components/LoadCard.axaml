@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:effects="using:PLDUOBAO.UI.Effects"
+             x:Class="PLDUOBAO.LoadCard">
+    <StackPanel Spacing="0">
+        <effects:ProgressRing HorizontalAlignment="Left"
+                              Background="Transparent"
+                              Width="36"
+                              Height="36"/>
+        <effects:LineTextBlock x:Name="titleBlock"
+                               FontSize="22"
+                               HorizontalAlignment="Left"
+                               Margin="0,12,0,12"/>
+        <TextBlock x:Name="messageBlock"
+                   FontSize="11"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+    </StackPanel>
+</UserControl>

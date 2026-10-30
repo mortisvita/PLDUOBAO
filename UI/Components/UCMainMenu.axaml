@@ -1,0 +1,620 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:local="using:PLDUOBAO"
+             xmlns:pe="using:PLDUOBAO.Network.Netease.NetworkSDK.PECommon"
+             xmlns:effects="using:PLDUOBAO.UI.Effects"
+             mc:Ignorable="d" d:DesignWidth="880" d:DesignHeight="550"
+             Loaded="onLoaded"
+             x:Class="PLDUOBAO.UCMainMenu">
+    
+    <UserControl.Styles>
+        <!-- 导航项动画 -->
+        <Style Selector="ui|NavigationViewItem">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="ui|NavigationViewItem:pointerover">
+            <Setter Property="RenderTransform" Value="translateX(4px)"/>
+        </Style>
+        
+        <!-- 卡片悬停效果 -->
+        <Style Selector="Border.server-card">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.server-card:pointerover">
+            <Setter Property="RenderTransform" Value="scale(1.01)"/>
+            <Setter Property="BoxShadow" Value="0 4 16 0 #30000000"/>
+        </Style>
+
+        <Style Selector="Button.pane-footer-icon">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.pane-footer-icon:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+        </Style>
+        <Style Selector="Border.pane-footer-icon">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+    </UserControl.Styles>
+    
+    <Grid Background="Transparent">
+        <ui:NavigationView x:Name="navView" 
+                           PaneDisplayMode="Left"
+                           Background="Transparent"
+                           IsBackButtonVisible="False"
+                           IsPaneToggleButtonVisible="True"
+                           OpenPaneLength="200"
+                           IsSettingsVisible="False"
+                           SelectionChanged="OnNavigationSelectionChanged">
+            <ui:NavigationView.Resources>
+                <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent"/>
+                <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent"/>
+                <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent"/>
+                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent"/>
+            </ui:NavigationView.Resources>
+            
+            <ui:NavigationView.MenuItems>
+                <ui:NavigationViewItem Content="主页" Tag="Home" IsSelected="True">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:SymbolIconSource Symbol="Home"/>
+                    </ui:NavigationViewItem.IconSource>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem Content="网络游戏" Tag="NetGame">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:SymbolIconSource Symbol="Globe"/>
+                    </ui:NavigationViewItem.IconSource>
+                </ui:NavigationViewItem>
+                
+                <ui:NavigationViewItem Content="设置" Tag="Settings">
+                    <ui:NavigationViewItem.IconSource>
+                        <ui:SymbolIconSource Symbol="Setting"/>
+                    </ui:NavigationViewItem.IconSource>
+                </ui:NavigationViewItem>
+            </ui:NavigationView.MenuItems>
+            
+            <ui:NavigationView.PaneFooter>
+                <StackPanel Spacing="4" Margin="8,8">
+                    <Button x:Name="btnUserProfile"
+                            Background="Transparent"
+                            Padding="0"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            IsVisible="{Binding #navView.IsPaneOpen}">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="Top">
+                                <MenuItem Header="修改昵称" Click="onRenameNickName">
+                                    <MenuItem.Icon>
+                                        <ui:SymbolIcon Symbol="Edit"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="退出登录" Click="onClickExit">
+                                    <MenuItem.Icon>
+                                        <ui:SymbolIcon Symbol="Cancel"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </MenuFlyout>
+                        </Button.Flyout>
+
+                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                CornerRadius="8"
+                                Padding="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock x:Name="tbUserName"
+                                           Grid.Column="0"
+                                           Text="用户名字"
+                                           FontWeight="SemiBold"
+                                           FontSize="13"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap"/>
+                                <ui:SymbolIcon Grid.Column="1"
+                                               Symbol="ChevronDown"
+                                               FontSize="12"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            </Grid>
+                        </Border>
+                    </Button>
+
+                    <Button x:Name="btnUserProfileCompact"
+                            Classes="pane-footer-icon"
+                            HorizontalAlignment="Center"
+                            ToolTip.Tip="{Binding #tbUserName.Text}"
+                            IsVisible="{Binding !#navView.IsPaneOpen}">
+                        <Button.Flyout>
+                            <MenuFlyout Placement="Top">
+                                <MenuItem Header="修改昵称" Click="onRenameNickName">
+                                    <MenuItem.Icon>
+                                        <ui:SymbolIcon Symbol="Edit"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem Header="退出登录" Click="onClickExit">
+                                    <MenuItem.Icon>
+                                        <ui:SymbolIcon Symbol="Cancel"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                        <ui:SymbolIcon Symbol="Contact"
+                                       FontSize="16"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </Button>
+                </StackPanel>
+            </ui:NavigationView.PaneFooter>
+            
+        <ui:NavigationView.Content>
+            <effects:NavigationFrame x:Name="pageFrame"
+                                     NavigationFrameDirection="Right"/>
+        </ui:NavigationView.Content>
+        </ui:NavigationView>
+
+        <Panel x:Name="pagePool" IsVisible="False">
+                    <Grid x:Name="pageHome" Margin="24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <effects:LineTextBlock Text="欢迎使用 PLDUOBAO"
+                                                   FontSize="28"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <Border Grid.Row="1" 
+                                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="20"
+                                Margin="0,16,0,0">
+                            <Grid ColumnDefinitions="*,Auto,*,Auto,*">
+                                <!-- 总游戏时长 -->
+                                <StackPanel HorizontalAlignment="Center" Spacing="4">
+                                    <TextBlock Text="总游戏时长" 
+                                               FontSize="12"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="tbTotalPlayTime" 
+                                               Text="0小时" 
+                                               FontSize="20" 
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <Border Grid.Column="1" Width="1" 
+                                        Background="{DynamicResource DividerStrokeColorDefaultBrush}" 
+                                        Margin="16,4"/>
+                                
+                                <!-- 今日游戏时长 -->
+                                <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="4">
+                                    <TextBlock Text="今日游戏" 
+                                               FontSize="12"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="tbTodayPlayTime" 
+                                               Text="0分钟" 
+                                               FontSize="20" 
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <Border Grid.Column="3" Width="1" 
+                                        Background="{DynamicResource DividerStrokeColorDefaultBrush}" 
+                                        Margin="16,4"/>
+                                
+                                <!-- 游戏次数 -->
+                                <StackPanel Grid.Column="4" HorizontalAlignment="Center" Spacing="4">
+                                    <TextBlock Text="游戏次数" 
+                                               FontSize="12"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="tbGameSessions" 
+                                               Text="0次" 
+                                               FontSize="20" 
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+        <Grid x:Name="pageNetGame" Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                <effects:LineTextBlock Text="网络游戏"
+                                       FontSize="28"
+                                       FontWeight="SemiBold"/>
+            </StackPanel>
+            
+            <Border Grid.Row="1" 
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,16">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBox x:Name="tboxNetGameSearch" 
+                             Watermark="搜索服务器名称..." 
+                             Width="300"
+                             TextChanged="OnNetGameSearchTextChanged"/>
+                    <Button Content="刷新" Click="onRefreshNetGame">
+                        <Button.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
+                            </Style>
+                        </Button.Styles>
+                    </Button>
+                </StackPanel>
+            </Border>
+            
+            <Grid Grid.Row="2">
+                <TextBlock x:Name="tbNetGameLoading"
+                           Text="正在加载服务器列表..."
+                           IsVisible="False"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                <ListBox x:Name="listNetGame" 
+                         Background="Transparent">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="pe:NetGameItem">
+                            <local:UCServerBar/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Grid>
+        <!-- 设置页面 -->
+        <Grid x:Name="pageSettings" Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                <effects:LineTextBlock Text="设置"
+                                       FontSize="28"
+                                       FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1">
+                <StackPanel Spacing="16" Loaded="onLoadedOther" Unloaded="onUnLoadedOther">
+                    <!-- 游戏下载 -->
+                    <ui:SettingsExpander Header="游戏下载"
+                                         Description="下载并安装网易 BE 游戏客户端"
+                                         IconSource="Play"
+                                         IsExpanded="True">
+                        <!-- 路径：主项 -->
+                        <ui:SettingsExpander.Footer>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBox x:Name="tbGameDownloadPath"
+                                         MinWidth="400"
+                                         Watermark="游戏下载路径"
+                                         TextChanged="OnGameDownloadPathChanged"
+                                         LostFocus="OnGameDownloadPathLostFocus"/>
+                                <Button x:Name="btnChooseGameDownloadPath"
+                                        Content="浏览"
+                                        Click="OnChooseGameDownloadPathClick"/>
+                            </StackPanel>
+                        </ui:SettingsExpander.Footer>
+
+                        <!-- 版本与操作：子项抽屉 -->
+                        <ui:SettingsExpander.Items>
+                            <ui:SettingsExpanderItem >
+                                <ui:SettingsExpanderItem.Footer>
+                                    <StackPanel Spacing="10" Margin="-120,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <ComboBox x:Name="cbGameDownloadVersion"
+                                                      MinWidth="180"
+                                                      PlaceholderText="选择版本"
+                                                      SelectionChanged="OnGameDownloadVersionChanged"/>
+                                            <Button x:Name="btnRefreshGameDownloadVersions"
+                                                    Content="刷新版本"
+                                                    Click="OnRefreshGameDownloadVersionsClick"/>
+                                            <Button x:Name="btnToggleGameDownloadVersionFilter"
+                                                    Content="仅指定版本"
+                                                    Click="OnToggleGameDownloadVersionFilterClick"/>
+                                            <Button x:Name="btnStartGameDownload"
+                                                    Content="下载并安装"
+                                                    Click="OnStartGameDownloadClick"/>
+                                            <Button x:Name="btnCancelGameDownload"
+                                                    Content="取消"
+                                                    IsEnabled="False"
+                                                    Click="OnCancelGameDownloadClick"/>
+                                            <TextBlock x:Name="tbGameDownloadStatus"
+                                                       Text="未加载版本"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                        </StackPanel>
+
+                                        <ProgressBar x:Name="pbGameDownloadProgress"
+                                                     Minimum="0"
+                                                     Maximum="100"
+                                                     Height="4"
+                                                     IsVisible="False"/>
+                                    </StackPanel>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                        </ui:SettingsExpander.Items>
+                    </ui:SettingsExpander>
+
+                    <!-- 游戏路径 -->
+                    <ui:SettingsExpander Header="游戏路径"
+                                         Description="设置你的 Minecraft 游戏文件夹路径"
+                                         IconSource="Folder">
+                        <ui:SettingsExpander.Footer>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBox x:Name="tbGamePath" 
+                                         Watermark="游戏路径" 
+                                         Width="400"/>
+                                <Button Content="浏览" Click="onClickGameFoldler"/>
+                            </StackPanel>
+                        </ui:SettingsExpander.Footer>
+                    </ui:SettingsExpander>
+                    
+                    <!-- 皮肤设置 -->
+                    <ui:SettingsExpander Header="皮肤设置"
+                                         Description="设置你的游戏皮肤"
+                                         IconSource="Contact"
+                                         IsExpanded="True">
+                        <ui:SettingsExpander.Footer>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBox x:Name="tbSkinPath" 
+                                         Watermark="皮肤文件路径" 
+                                         Width="520"
+                                         TextChanged="OnSkinPathChanged"/>
+                                <Button Content="选择文件" Click="onClickSkinFile"/>
+                            </StackPanel>
+                        </ui:SettingsExpander.Footer>
+                        <ui:SettingsExpander.Items>
+                            <ui:SettingsExpanderItem Content="预览模式">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <RadioButton x:Name="rbPreview2D" Content="2D" GroupName="PreviewMode" Click="OnPreviewModeChanged"/>
+                                        <RadioButton x:Name="rbPreview3D" Content="3D" GroupName="PreviewMode" IsChecked="True" Click="OnPreviewModeChanged"/>
+                                    </StackPanel>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="皮肤预览">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <Border Width="120" Height="180" 
+                                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
+                                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="4"
+                                            Cursor="Hand"
+                                            PointerPressed="OnSkinPreviewPointerPressed"
+                                            PointerMoved="OnSkinPreviewPointerMoved"
+                                            PointerReleased="OnSkinPreviewPointerReleased">
+                                        <Image x:Name="imgSkinPreview" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="None"/>
+                                    </Border>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="纤细皮肤 (Slim Skin)">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <ToggleSwitch x:Name="tsIsSlimSkin" Click="OnSkinSlimToggled"/>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="皮肤历史"
+                                                     Description="快速切换最近使用的皮肤">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <ItemsControl x:Name="icSkinHistory">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" Spacing="4"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                        <Button x:Name="btnClearSkinHistory" 
+                                                Content="清空" 
+                                                FontSize="12"
+                                                Padding="8,4"
+                                                Click="OnClearSkinHistoryClick"/>
+                                    </StackPanel>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                        </ui:SettingsExpander.Items>
+                    </ui:SettingsExpander>
+                    
+                    <!-- 外观设置 -->
+                    <ui:SettingsExpander Header="外观"
+                                         Description="自定义界面外观"
+                                         IconSource="ColorFill">
+                        <ui:SettingsExpander.Items>
+                            <ui:SettingsExpanderItem Content="主题模式">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <RadioButton x:Name="rbThemeLight" 
+                                                     Content="浅色" 
+                                                     GroupName="ThemeMain"
+                                                     Checked="OnThemeChanged"/>
+                                        <RadioButton x:Name="rbThemeDark" 
+                                                     Content="深色" 
+                                                     GroupName="ThemeMain"
+                                                     Checked="OnThemeChanged"/>
+                                        <RadioButton x:Name="rbThemeSystem" 
+                                                     Content="跟随系统" 
+                                                     GroupName="ThemeMain"
+                                                     IsChecked="True"
+                                                     Checked="OnThemeChanged"/>
+                                    </StackPanel>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="主题色">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <RadioButton x:Name="rbAccentSystem" 
+                                                     Content="跟随系统" 
+                                                     GroupName="AccentColor"
+                                                     IsChecked="True"
+                                                     Checked="OnAccentColorModeChanged"/>
+                                        <RadioButton x:Name="rbAccentCustom" 
+                                                     Content="自定义" 
+                                                     GroupName="AccentColor"
+                                                     Checked="OnAccentColorModeChanged"/>
+                                    </StackPanel>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem x:Name="siAccentColorPicker" 
+                                                     Content="选择主题色"
+                                                     IsVisible="False">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <StackPanel Spacing="16">
+                                        <!-- 快捷预设色 -->
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Text="快捷选择" 
+                                                       FontSize="12" 
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <Button Width="32" Height="32" CornerRadius="8" Padding="0"
+                                                        Background="#0078D4" Click="OnPresetColorClick" Tag="#0078D4"
+                                                        ToolTip.Tip="蓝色"/>
+                                                <Button Width="32" Height="32" CornerRadius="8" Padding="0"
+                                                        Background="#8764B8" Click="OnPresetColorClick" Tag="#8764B8"
+                                                        ToolTip.Tip="紫色"/>
+                                                <Button Width="32" Height="32" CornerRadius="8" Padding="0"
+                                                        Background="#E74856" Click="OnPresetColorClick" Tag="#E74856"
+                                                        ToolTip.Tip="红色"/>
+                                                <Button Width="32" Height="32" CornerRadius="8" Padding="0"
+                                                        Background="#FF8C00" Click="OnPresetColorClick" Tag="#FF8C00"
+                                                        ToolTip.Tip="橙色"/>
+                                                <Button Width="32" Height="32" CornerRadius="8" Padding="0"
+                                                        Background="#107C10" Click="OnPresetColorClick" Tag="#107C10"
+                                                        ToolTip.Tip="绿色"/>
+                                                <Button Width="32" Height="32" CornerRadius="8" Padding="0"
+                                                        Background="#00B7C3" Click="OnPresetColorClick" Tag="#00B7C3"
+                                                        ToolTip.Tip="青色"/>
+                                                <Button Width="32" Height="32" CornerRadius="8" Padding="0"
+                                                        Background="#E3008C" Click="OnPresetColorClick" Tag="#E3008C"
+                                                        ToolTip.Tip="粉色"/>
+                                                <Button Width="32" Height="32" CornerRadius="8" Padding="0"
+                                                        Background="#7A7574" Click="OnPresetColorClick" Tag="#7A7574"
+                                                        ToolTip.Tip="灰色"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <!-- 自定义调色盘 -->
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Text="自定义颜色" 
+                                                       FontSize="12" 
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                                <ui:ColorPickerButton x:Name="cpThemeColor"
+                                                                      ShowAcceptDismissButtons="False"
+                                                                      UseSpectrum="True"
+                                                                      UseColorWheel="False"
+                                                                      UseColorTriangle="False"
+                                                                      UseColorPalette="True"
+                                                                      IsMoreButtonVisible="True"
+                                                                      IsCompact="False"
+                                                                      ColorChanged="OnColorPickerColorChanged"/>
+                                                <StackPanel VerticalAlignment="Center" Spacing="2">
+                                                    <TextBlock Text="点击左侧按钮打开调色盘" 
+                                                               FontSize="12"
+                                                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                        </ui:SettingsExpander.Items>
+                    </ui:SettingsExpander>
+
+                    <!-- 游戏设置 -->
+                    <ui:SettingsExpander Header="游戏"
+                                         Description="游戏启动相关设置"
+                                         IconSource="Play">
+                        <ui:SettingsExpander.Items>
+                            <ui:SettingsExpanderItem Content="显示游戏控制台"
+                                                     Description="启动游戏时显示控制台窗口（用于调试）">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <ToggleSwitch x:Name="tsShowGameConsole" IsCheckedChanged="OnGameConsoleToggled"/>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="启用设备绕过"
+                                                     Description="绕过服务器的设备检测">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <ToggleSwitch x:Name="tsEnableDeviceSpoof" IsChecked="True" IsCheckedChanged="OnDeviceSpoofToggled"/>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                        </ui:SettingsExpander.Items>
+                    </ui:SettingsExpander>
+                    <ui:SettingsExpander Header="渲染引擎"
+                                         Description="切换网易版 / 基岩互通版的渲染引擎"
+                                         IconSource="Globe">
+                        <ui:SettingsExpander.Items>
+                            <ui:SettingsExpanderItem Content="网易原版 (MinecraftPE_Netease)">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <RadioButton x:Name="rbPEOpenGL" GroupName="RenderEnginePE" Content="OpenGL" Click="OnPERenderEngineClick"/>
+                                        <RadioButton x:Name="rbPERenderDragon" GroupName="RenderEnginePE" Content="RenderDragon" Click="OnPERenderEngineClick"/>
+                                    </StackPanel>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="基岩互通版 (MinecraftPC_Netease_PB)">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <RadioButton x:Name="rbPBOpenGL" GroupName="RenderEnginePB" Content="OpenGL" Click="OnPBRenderEngineClick"/>
+                                        <RadioButton x:Name="rbPBRenderDragon" GroupName="RenderEnginePB" Content="RenderDragon" Click="OnPBRenderEngineClick"/>
+                                    </StackPanel>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                        </ui:SettingsExpander.Items>
+                    </ui:SettingsExpander>
+                    
+                    <!-- 其他操作 -->
+                    <ui:SettingsExpander Header="其他"
+                                         Description="其他设置和操作"
+                                         IconSource="More">
+                        <ui:SettingsExpander.Items>
+                            <ui:SettingsExpanderItem Content="清理缓存">
+                                <ui:SettingsExpanderItem.Footer>
+                                    <Button Content="清理"/>
+                                </ui:SettingsExpanderItem.Footer>
+                            </ui:SettingsExpanderItem>
+                        </ui:SettingsExpander.Items>
+                    </ui:SettingsExpander>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+        </Panel>
+    </Grid>
+</UserControl>

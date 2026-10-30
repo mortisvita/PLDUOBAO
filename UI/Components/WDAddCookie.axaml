@@ -1,0 +1,61 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="280"
+        x:Class="PLDUOBAO.WDAddCookie"
+        Title="添加 Cookie"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Closed="onClosed"
+        Width="500"
+        Height="280"
+        Background="{DynamicResource SolidBackgroundFillColorBaseBrush}">
+    
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- 标题 -->
+        <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,20">
+            <ui:SymbolIcon Symbol="Add" FontSize="24" 
+                           Foreground="{DynamicResource AccentFillColorDefaultBrush}"/>
+            <TextBlock Text="添加新账户" 
+                       FontSize="18" 
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+        
+        <!-- 表单 -->
+        <StackPanel Grid.Row="1" Spacing="16">
+            <StackPanel Spacing="6">
+                <TextBlock Text="Cookie (Sauth)" FontWeight="Medium" FontSize="13"/>
+                <TextBox x:Name="tbSauth" 
+                         Watermark="粘贴你获取的 Cookie"
+                         Height="60"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+            
+            <StackPanel Spacing="6">
+                <TextBlock Text="账号名称" FontWeight="Medium" FontSize="13"/>
+                <TextBox x:Name="tbFileName" 
+                         Watermark="建议设置为账号名，方便查找"/>
+            </StackPanel>
+        </StackPanel>
+        
+        <!-- 按钮 -->
+        <Button Grid.Row="2" 
+                x:Name="btnConfirm" 
+                Classes="accent"
+                Click="onConfirm" 
+                Content="确认并返回" 
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                Height="40"/>
+    </Grid>
+</Window>

@@ -1,0 +1,97 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PLDUOBAO.UCJoinGame"
+             Loaded="onLoaded"
+             Background="Transparent">
+
+    <UserControl.Styles>
+        <!-- 弹窗动画 -->
+        <Style Selector="Border.dialog-card">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="RenderTransform" Value="scale(0.95)"/>
+        </Style>
+        <Style Selector="Border.dialog-card.show">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="RenderTransform" Value="scale(1)"/>
+        </Style>
+        <Style Selector="Border.dialog-card">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="ExponentialEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+    </UserControl.Styles>
+    
+    <Grid>
+        <!-- 背景遮罩 -->
+        <Border Background="{DynamicResource SmokeFillColorDefaultBrush}" Opacity="0.6"/>
+        
+        <!-- 弹窗内容 -->
+        <Border x:Name="dialogCard"
+                Classes="dialog-card show"
+                Width="420" 
+                Height="280" 
+                Background="{DynamicResource AcrylicBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="12"
+                BoxShadow="0 8 32 0 #40000000"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            
+            <Grid Margin="32">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- 标题 -->
+                <StackPanel Spacing="8">
+                    <ui:SymbolIcon Symbol="Play" FontSize="36" 
+                                   Foreground="{DynamicResource AccentFillColorDefaultBrush}"/>
+                    <TextBlock Text="正在准备加入游戏" 
+                               FontSize="20" 
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+                
+                <!-- 信息 -->
+                <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="12">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                        <ui:SymbolIcon Symbol="Globe" FontSize="16"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock x:Name="tbServerIP"
+                                   Text="目标服务器：加载中..."
+                                   FontSize="13"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                    
+                    <TextBlock x:Name="tbNowInfo"
+                               Text="正在进行游戏前的检查..."
+                               HorizontalAlignment="Center"
+                               FontSize="14"/>
+                </StackPanel>
+                
+                <!-- 进度 -->
+                <StackPanel Grid.Row="2" Spacing="8">
+                    <ui:ProgressRing x:Name="pbGameState" 
+                                     Width="36" 
+                                     Height="36"
+                                     IsIndeterminate="True"
+                                     HorizontalAlignment="Center"/>
+                    <TextBlock Text="请稍候..." 
+                               FontSize="12"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

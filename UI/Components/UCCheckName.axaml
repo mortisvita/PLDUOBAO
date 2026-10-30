@@ -1,0 +1,108 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Loaded="onLoaded"
+             x:Class="PLDUOBAO.UCCheckName">
+
+    <UserControl.Styles>
+        <Style Selector="Border.name-card">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="RenderTransform" Value="translateY(20px)"/>
+        </Style>
+        <Style Selector="Border.name-card.loaded">
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="RenderTransform" Value="translateY(0)"/>
+        </Style>
+        <Style Selector="Border.name-card">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.5" Easing="ExponentialEaseOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+    </UserControl.Styles>
+    
+    <Grid>
+        <Border Background="{DynamicResource LayerFillColorDefaultBrush}" Opacity="0.3"/>
+        
+        <Grid RowDefinitions="*,Auto,*">
+            <Border x:Name="nameCard"
+                    Grid.Row="1"
+                    Classes="name-card loaded"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="48,40"
+                    Width="400"
+                    HorizontalAlignment="Center"
+                    BoxShadow="0 4 24 0 #20000000">
+                
+                <StackPanel Spacing="24">
+                    <!-- 标题 -->
+                    <StackPanel Spacing="8" HorizontalAlignment="Center">
+                        <ui:SymbolIcon Symbol="Rename" FontSize="48" 
+                                       Foreground="{DynamicResource AccentFillColorDefaultBrush}"/>
+                        <TextBlock x:Name="tbTitle" 
+                                   Text="正在检查名字是否设置..."
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                    
+                    <!-- 输入区域 -->
+                    <StackPanel x:Name="inputPanel" Spacing="16" IsVisible="False">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="输入你的游戏名字" 
+                                       FontSize="13" 
+                                       FontWeight="Medium"/>
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <TextBox x:Name="tboxNameEnter" 
+                                         Watermark="在这里输入你的名字"
+                                         Height="40"
+                                         HorizontalContentAlignment="Center"/>
+                                <Button x:Name="btnRandom" 
+                                        Grid.Column="1"
+                                        Content="随机" 
+                                        Margin="8,0,0,0"
+                                        Click="onClickRandom"/>
+                                <Button x:Name="btnChineseRandom" 
+                                        Grid.Column="2"
+                                        Content="中文随机" 
+                                        Margin="8,0,0,0"
+                                        Click="onClickChineseRandom"/>
+                            </Grid>
+                        </StackPanel>
+                        
+                        <Button x:Name="btnConfirm" 
+                                Content="确定" 
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Height="40"
+                                Click="onClickConfirm">
+                            <Button.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                    </StackPanel>
+                    
+                    <!-- 加载指示器 -->
+                    <ui:ProgressRing x:Name="loadingRing" 
+                                     Width="32" 
+                                     Height="32" 
+                                     IsIndeterminate="True"
+                                     HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

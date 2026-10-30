@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PLDUOBAO.UI.Effects.NavigationFrame">
+    <UserControl.Styles>
+        <Style Selector="ContentControl">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <ThicknessTransition Property="Margin"
+                                         Easing="ExponentialEaseOut"
+                                         Duration="0:0:0.38"/>
+                    <DoubleTransition Property="Opacity"
+                                      Easing="ExponentialEaseOut"
+                                      Duration="0:0:0.38"/>
+                </Transitions>
+            </Setter>
+        </Style>
+    </UserControl.Styles>
+    <Grid ClipToBounds="True">
+        <ContentControl x:Name="Frame1"/>
+        <ContentControl x:Name="Frame2"
+                      Opacity="0"
+                      Margin="50,0,-50,0"/>
+    </Grid>
+</UserControl>
