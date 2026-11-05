@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -36,11 +36,16 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK
                                                   int localAuthPort)
         {
             string skinHash = Convert.ToHexString(MD5.HashData(File.ReadAllBytes(skinPath)));
+
+            // level_id 必须与 games\com.netease 下已解密的资源包目录前缀一致
+            // （{levelId}_resource_packs_*），否则游戏找不到资源包，材质呈现紫黑格子。
+            string worldId = ServerPackScanner.ResolveWorldId("114514");
+
             CPPLaunchConfig cfg = new CPPLaunchConfig()
             {
                 world_info = new WorldInfo()
                 {
-                    level_id = "114514",
+                    level_id = worldId,
                     name = "PLDUOBAO Launcher",
                 },
                 room_info = new RoomInfo()
@@ -285,9 +290,18 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK
         public string? urs { get; set; }
     }
 
+    /// <summary>
+    /// 皮肤的启动配置。
+    /// 关键：JSON 键必须是 <c>skin</c> —— 这是 Python 层读取的名字，
+    /// 它再转成 native 参数 <c>skinPath</c>（见 SET_SKIN_ERROR / PYTHON_CALL_NATIVE 那组）。
+    /// 直接写 skinPath 或 skin_path 都会被 Python 层忽略，native 收到空值后
+    /// 游戏立刻以 code 13 退出：{"code":13,"detail":{"skinPath":""}}。
+    /// </summary>
     public class SkinInfo
     {
+        /// <summary>Python 层读取的键名，不能改。</summary>
         public string? skin { get; set; }
+
         public string? md5 { get; set; }
         public bool slim { get; set; }
         public string? skin_iid { get; set; }

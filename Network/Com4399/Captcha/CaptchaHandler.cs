@@ -1,4 +1,4 @@
-﻿using Elysium.Core.Utils;
+using Elysium.Core.Utils;
 using PLDUOBAO.Network.Com4399.SDK;
 using PLDUOBAO.Util;
 using System;
@@ -25,7 +25,11 @@ namespace PLDUOBAO.Network.Com4399.Captcha
     internal class CaptchaHandler
     {
 
-        private static readonly HttpClient _4399Api = new HttpClient()
+        private static readonly HttpClient _4399Api = new HttpClient(new HttpClientHandler
+        {
+            UseProxy = false,
+            Proxy = null,
+        })
         {
             BaseAddress = new Uri("https://m.4399api.com/")
         };

@@ -39,7 +39,13 @@ namespace PLDUOBAO.Network.Com4399
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
             "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
-        private readonly HttpClient _4399Api = new HttpClient()
+        // 直连，忽略系统代理：Fiddler/抓包工具退出后残留的死代理会导致 10061，
+        // 登录链路必须与调试代理解耦。
+        private readonly HttpClient _4399Api = new HttpClient(new HttpClientHandler
+        {
+            UseProxy = false,
+            Proxy = null,
+        })
         {
             BaseAddress = new Uri("https://m.4399api.com/")
         };
@@ -52,6 +58,8 @@ namespace PLDUOBAO.Network.Com4399
             AllowAutoRedirect = false,
             CookieContainer = loginCookieContainer,
             UseCookies = true,
+            UseProxy = false,
+            Proxy = null,
         })
         {
             BaseAddress = new Uri("https://ptlogin.4399.com/"),

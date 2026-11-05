@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +14,11 @@ namespace PLDUOBAO.Network
         public static async Task DownloadFileAsync(string url, string outputPath)
         {
             string FileName = Path.GetFileName(url);
-            using (HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient(new HttpClientHandler
+            {
+                UseProxy = false,
+                Proxy = null,
+            }))
             {
                 using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
                 {

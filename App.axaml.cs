@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Runtime.Versioning;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -23,6 +24,9 @@ namespace PLDUOBAO
         
         public override void Initialize()
         {
+            // 忽略系统代理：抓包/调试工具退出后残留的死代理会让所有 HttpClient
+            // 抛 10061。启动器自身所有网络请求一律直连。
+            HttpClient.DefaultProxy = new System.Net.WebProxy();
             AvaloniaXamlLoader.Load(this);
         }
 

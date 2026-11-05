@@ -37,9 +37,13 @@
 
 	<ItemGroup>
 	  <AvaloniaXaml Remove="Memory\**" />
+	  <AvaloniaXaml Remove="scripts\**" />
 	  <Compile Remove="Memory\**" />
+	  <Compile Remove="scripts\**" />
 	  <EmbeddedResource Remove="Memory\**" />
+	  <EmbeddedResource Remove="scripts\**" />
 	  <None Remove="Memory\**" />
+	  <None Remove="scripts\**" />
 	  <Compile Remove="Network\MPay\MPay.cs" />
 	  <AvaloniaXaml Remove="auth-server\**" />
 	  <Compile Remove="auth-server\**" />

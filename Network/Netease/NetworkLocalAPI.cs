@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -32,7 +32,11 @@ namespace PLDUOBAO.Network.Netease
             UpdateAuth,
         }
 
-        public static readonly HttpClient client = new HttpClient()
+        public static readonly HttpClient client = new HttpClient(new HttpClientHandler
+        {
+            UseProxy = false,
+            Proxy = null,
+        })
         {
             Timeout = Timeout.InfiniteTimeSpan
         };
@@ -199,7 +203,11 @@ namespace PLDUOBAO.Network.Netease
                 return null;
             }
 
-            HttpClient httpClient = new HttpClient();
+            HttpClient httpClient = new HttpClient(new HttpClientHandler
+            {
+                UseProxy = false,
+                Proxy = null,
+            });
             HttpContent httpContent = new StringContent(x19Crypt.HttpEncrypt_g79v12(Encoding.UTF8.GetBytes(param)).ToHex());
             httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             httpContent.Headers.Add("user-token", Encoding.ASCII.GetBytes(x19Crypt.ComputeDynamicToken(url, param, CurrentAvaliableUser.token)).ToHex(toUpper: true));

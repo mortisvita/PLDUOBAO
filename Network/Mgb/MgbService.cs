@@ -17,7 +17,11 @@ namespace PLDUOBAO.Network.Mgb
 {
     internal class MgbService(string gameId) : IDisposable
     {
-        private readonly HttpClient _sdk = new HttpClient();
+        private readonly HttpClient _sdk = new HttpClient(new HttpClientHandler
+        {
+            UseProxy = false,
+            Proxy = null,
+        });
 
         public void Dispose() 
         {

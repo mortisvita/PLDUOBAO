@@ -14,6 +14,7 @@ using Elysium.Core.Utils;
 using PLDUOBAO.Network.LocalAuthServer;
 using PLDUOBAO.Network.Netease;
 using PLDUOBAO.Network.Netease.NetworkSDK;
+using PLDUOBAO.Network.Netease.NetworkSDK.Mcp;
 using PLDUOBAO.Network.Netease.NetworkSDK.PECommon;
 using PLDUOBAO.Network.NewVerify;
 using PLDUOBAO.Util;
@@ -153,6 +154,11 @@ internal partial class UCJoinGame : UserControl
             else
                 port = AuthServerHost.CurrentRunningPort;
 
+            // 进服前把 packcache 密文解密部署到 resource_packs（真实明文，不写占位文件）
+            tbNowInfo.Text = "正在准备资源...";
+            try { await McpResourceSync.PrepareAsync(serverItemId); }
+            catch (Exception ex) { LogSys.Warn($"[McpSync] 资源准备跳过: {ex.Message}"); }
+
             var cfg = CPPLaunchConfig.GenerateNew(ngsa.Host,
                                                   ngsa.Port,
                                                   MainWindow.UCMainmenu?.SkinPath!,
@@ -198,6 +204,11 @@ internal partial class UCJoinGame : UserControl
             var proc = await GameLauncher.StartGameWithAuthAsync(MainWindow.UCMainmenu?.GamePath!, PathUtils.LaunchConfigPath, serverName, isRental ? "Rental" : "NetGame");
 
             AuthServerHost.proc = proc;
+
+            // 游戏启动后仍会按服务器 mod_missmatch 结果补下载脚本包到 packcache
+            // （mcp.log: resource_pack start 之后才 mod_download）。持续增量部署，
+            // 覆盖那些晚到的包，避免 CLIENT addon list 指向加密目录导致 MCP 加载失败。
+            _ = McpResourceSync.WatchAndDeployAsync(proc);
 
             MainWindow.RaiseMessage("游戏启动成功", "提示", Avalonia.Controls.Notifications.NotificationType.Success);
 
