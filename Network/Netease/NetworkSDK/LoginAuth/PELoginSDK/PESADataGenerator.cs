@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -96,17 +96,22 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth.PELoginSDK
                 _ => (2240, 1080)
             };
 
+
+        private const string AppChannel = "allysdk.4399com";
+        private static string AppVersion => VerificationProfile.EngineVersion;
+        private const string SdkVer = "3.12.2";
+
         public static string GenerateSaDataPE()
         {
             var (width, height) = RandomResolution();
 
             var obj = new PESA_Data
             {
-                AppChannel = "netease",
-                AppVersion = "3.9.0.296599",
+                AppChannel = AppChannel,
+                AppVersion = AppVersion,
                 CoreNum = Environment.ProcessorCount.ToString(),
                 CpuDigit = "64",
-                CpuHz = _random.Next(1600000, 2800000).ToString(), // 1.6 GHz - 2.8 GHz
+                CpuHz = _random.Next(1600000, 3000000).ToString(), // 1.6 GHz - 3.0 GHz
                 CpuName = RandomCpuName(),
                 DeviceHeight = height.ToString(),
                 DeviceWidth = width.ToString(),
@@ -119,16 +124,18 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth.PELoginSDK
                 MacAddress = RandomMacAddress(),
                 Network = "CHANNEL_UNKNOW",
                 OsName = "android",
-                OsVersion = _random.Next(10, 14).ToString(), // Android 10–13
-                Ram = (_random.Next(3, 7) * 1024 * 1024 * 1024L).ToString(), // 3–6 GB
+                OsVersion = _random.Next(11, 15).ToString(), // Android 11–14（3.10 要求更高）
+                Ram = (_random.Next(4, 9) * 1024 * 1024 * 1024L).ToString(), // 4–8 GB
                 Rom = (_random.Next(32, 129) * 1024L * 1024L * 1024L).ToString(), // 32–128 GB
                 Root = false,
-                SdkVersion = "5.2.0",
+                SdkVersion = SdkVer,
                 StartType = "default",
+                Tdid = "",
                 Udid = RandomHex(16)
             };
 
-            return JsonSerializer.Serialize(obj,PESA_DataContext.Default.PESA_Data);
+            // 真实客户端序列化后在末尾带一个换行符，服务端按原文校验，必须一致
+            return JsonSerializer.Serialize(obj, PESA_DataContext.Default.PESA_Data) + "\n";
         }
     }
 }

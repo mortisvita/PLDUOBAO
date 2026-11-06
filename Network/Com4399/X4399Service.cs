@@ -599,9 +599,34 @@ namespace PLDUOBAO.Network.Com4399
 
             //LogSys.Log($"[X4399Service] 这俩一样吗？ Result:{sdk_json == sdk_json_old}");
 
+            string? unisdkB64 = null;
+            try
+            {
+                unisdkB64 = await _mgbSdk.AuthSession(sdk_json);
+            }
+            catch (Exception ex)
+            {
+                LogSys.Warn($"[X4399Service] AuthSession failed: {ex.Message}");
+            }
+
+            string sauthForPE = sdk_json;
+            if (!string.IsNullOrEmpty(unisdkB64))
+            {
+                string? unisdkJson = MgbService.DecodeUnisdkLoginJson(unisdkB64);
+                if (!string.IsNullOrEmpty(unisdkJson))
+                {
+                    LogSys.Log($"[X4399Service] unisdk_login_json:{unisdkJson}");
+                    sauthForPE = MergeNeteaseSession(sdk_json, unisdkJson) ?? sdk_json;
+                }
+            }
+            else
+            {
+                LogSys.Warn("[X4399Service] 未取得 unisdk_login_json，退回渠道原始 sauth");
+            }
+
             SercurityAuth sauth = new SercurityAuth
             {
-                sauth_json = sdk_json,
+                sauth_json = sauthForPE,
             };
 
             var options = new JsonSerializerOptions
@@ -620,9 +645,56 @@ namespace PLDUOBAO.Network.Com4399
 
             //LogSys.Log($"这俩一样吗？ Result:{finalJson == newtonjson}");
 
-            await _mgbSdk.AuthSession(sdk_json);
-
             return finalJson;
+        }
+        private static string? MergeNeteaseSession(string channelSauth, string unisdkJson)
+        {
+            try
+            {
+                using var chDoc = JsonDocument.Parse(channelSauth);
+                using var unDoc = JsonDocument.Parse(unisdkJson);
+
+                var map = new Dictionary<string, object?>();
+                foreach (var p in chDoc.RootElement.EnumerateObject())
+                    map[p.Name] = p.Value.ValueKind == JsonValueKind.String ? p.Value.GetString() : p.Value.ToString();
+
+                var un = unDoc.RootElement;
+                var chl = un.TryGetProperty("chl_sdk_json", out var c) ? c : default;
+                var oauth2 = un.TryGetProperty("oauth2", out var o) ? o : default;
+
+                // 网易侧标识
+                if (un.TryGetProperty("aid", out var aid))
+                    map["aid"] = aid.ValueKind == JsonValueKind.String ? aid.GetString() : aid.ToString();
+                if (un.TryGetProperty("sdkuid", out var sku))
+                    map["sdkuid"] = sku.ValueKind == JsonValueKind.String ? sku.GetString() : sku.ToString();
+
+                // 网易侧签名（chl_sdk_json.sign）
+                if (chl.ValueKind == JsonValueKind.Object)
+                {
+                    if (chl.TryGetProperty("sign", out var sg) && sg.ValueKind == JsonValueKind.String)
+                        map["sign"] = sg.GetString();
+                    if (chl.TryGetProperty("timestamp", out var ts) && ts.ValueKind == JsonValueKind.String)
+                        map["netease_timestamp"] = ts.GetString();
+                    if (chl.TryGetProperty("udid", out var ud) && ud.ValueKind == JsonValueKind.String)
+                        map["udid"] = ud.GetString();
+                }
+
+                // 网易侧 OAuth2 token
+                if (oauth2.ValueKind == JsonValueKind.Object)
+                {
+                    if (oauth2.TryGetProperty("access_token", out var at) && at.ValueKind == JsonValueKind.String)
+                        map["access_token"] = at.GetString();
+                    if (oauth2.TryGetProperty("refresh_token", out var rt) && rt.ValueKind == JsonValueKind.String)
+                        map["refresh_token"] = rt.GetString();
+                }
+
+                return JsonSerializer.Serialize(map);
+            }
+            catch (Exception ex)
+            {
+                LogSys.Warn($"[X4399Service] MergeNeteaseSession failed: {ex.Message}");
+                return null;
+            }
         }
 
         private async Task<byte[]> GetCaptchaImageBytesWithHtml(string username, string password, string html, int retry)

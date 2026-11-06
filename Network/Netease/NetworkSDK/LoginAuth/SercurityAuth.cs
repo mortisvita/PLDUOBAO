@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +20,17 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth
     {
         public string? sauth_json { get; set; }
 
-        public SAuthJson GetSAuthJson()
+        public SAuthJson? GetSAuthJson()
         {
-            return JsonSerializer.Deserialize(sauth_json, SercurityAuthContext.Default.SAuthJson)!;
+            if (string.IsNullOrWhiteSpace(sauth_json)) return null;
+            try
+            {
+                return JsonSerializer.Deserialize(sauth_json, SercurityAuthContext.Default.SAuthJson);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public class SAuthJson
@@ -36,14 +44,21 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth
             public string? sdk_version { get; set; }
             public string? udid { get; set; }
             public string? deviceid { get; set; }
-            public AimInfo? aim_info { get; set; }
+            public string? aim_info { get; set; }
+
             public string? client_login_sn { get; set; }
             public string? gas_token { get; set; }
             public string? source_platform { get; set; }
             public string? ip { get; set; }
             public string? userid { get; set; }
-            public Realname? realname { get; set; }
+            public string? realname { get; set; }
+
             public string? timestamp { get; set; }
+            public string? aid { get; set; }
+            public string? access_token { get; set; }
+            public string? refresh_token { get; set; }
+            public string? sign { get; set; }
+            public string? netease_timestamp { get; set; }
         }
 
         public class AimInfo

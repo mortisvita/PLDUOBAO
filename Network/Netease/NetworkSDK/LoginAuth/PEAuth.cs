@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -196,6 +196,25 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth
 
                     throw new LoginFailedException(optFailed.entity);
                 case 2001:
+
+                    LogSys.Warn("[PEAuth] code 2001 客户端版本异常");
+                    LogSys.Warn($"  engine={ls.engineVersion}");
+                    LogSys.Warn($"  soHash={ls.libminecraftpe}");
+                    LogSys.Warn($"  patchVersion={ls.patchVersion} patchHash={ls.patch}");
+                    LogSys.Warn($"  apkSign={ls.apkSignHash} offset={ls.offset} rounds={ls.rounds}");
+                    var sj = sauth_json?.GetSAuthJson();
+                    if (sj != null)
+                    {
+                        LogSys.Warn($"  sauth.login_channel={sj.login_channel} app_channel={sj.app_channel} " +
+                                    $"sdk_version={sj.sdk_version}");
+                        LogSys.Warn($"  sauth.aid={sj.aid} has_access_token={!string.IsNullOrEmpty(sj.access_token)} " +
+                                    $"has_sign={!string.IsNullOrEmpty(sj.sign)}");
+                        LogSys.Warn($"  sauth.sessionid={(sj.sessionid?.Length > 40 ? sj.sessionid[..40] + "..." : sj.sessionid)}");
+                    }
+                    else
+                    {
+                        LogSys.Warn("  sauth 解析失败（sauth_json 不是合法 JSON）");
+                    }
                     return LoginState.InvaildDevice;
                 default:
                     throw new HttpRequestException($"错误信息：{opt.message}，状态码：{opt.code}");

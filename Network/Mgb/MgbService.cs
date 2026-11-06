@@ -65,7 +65,7 @@ namespace PLDUOBAO.Network.Mgb
             }, context.MgbSdkCookie);
         }
 
-        public async Task AuthSession(string cookie)
+        public async Task<string?> AuthSession(string cookie)
         {
             LogSys.Log($"[MgbService] Request Cookie:{cookie}");
 
@@ -80,24 +80,51 @@ namespace PLDUOBAO.Network.Mgb
                 throw new HttpRequestException(response.ReasonPhrase);
             }
 
+            string body = await response.Content.ReadAsStringAsync();
+            LogSys.Log($"[MgbService] AuthSession:{body}");
 
-            LogSys.Log($"[MgbService] AuthSession:{await response.Content.ReadAsStringAsync()}");
+            try
+            {
+                using var doc = JsonDocument.Parse(body);
+                var root = doc.RootElement;
 
-            //StringContent content = new StringContent(cookie, Encoding.UTF8, "application/json");
-            //HttpResponseMessage httpResponseMessage = await _sdk.PostAsync("https://mgbsdk.matrix.netease.com/x19/sdk/uni_sauth", content);
-            ////httpResponseMessage.Headers.Add("User-Agent", "WPFLauncher/0.0.0.0");
-            //LogSys.Log($"[MgbService] Request Cookie: {cookie}");
-            //LogSys.Log($"[MgbService] Request Uri : {"/" + gameId + "/sdk/uni_sauth"}");
-            //if (!httpResponseMessage.IsSuccessStatusCode)
-            //{
-            //    throw new HttpRequestException(httpResponseMessage.ReasonPhrase);
-            //}
-            //LogSys.Log($"[MgbService] AuthSession:{await httpResponseMessage.Content.ReadAsStringAsync()}");
-            //Dictionary<string, object> dictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(await httpResponseMessage.Content.ReadAsStringAsync());
-            //if (dictionary["code"].ToString() != "200")
-            //{
-            //    throw new HttpRequestException("Status: " + dictionary["status"]);
-            //}
+                // code 必须是 200，否则渠道凭据本身无效
+                if (root.TryGetProperty("code", out var c)
+                    && c.ValueKind == JsonValueKind.Number
+                    && c.GetInt32() != 200)
+                {
+                    LogSys.Warn($"[MgbService] AuthSession failed: {body}");
+                    return null;
+                }
+
+                if (root.TryGetProperty("unisdk_login_json", out var u)
+                    && u.ValueKind == JsonValueKind.String)
+                {
+                    string? val = u.GetString();
+                    if (!string.IsNullOrWhiteSpace(val))
+                        return val;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogSys.Warn($"[MgbService] AuthSession parse err: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        public static string? DecodeUnisdkLoginJson(string? base64)
+        {
+            if (string.IsNullOrWhiteSpace(base64)) return null;
+            try
+            {
+                byte[] raw = Convert.FromBase64String(base64);
+                return Encoding.UTF8.GetString(raw);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

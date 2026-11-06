@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -83,6 +83,9 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth.PELoginSDK
 
          [JsonPropertyName("start_type")]
          public string? StartType { get; set; }
+
+         [JsonPropertyName("tdid")]
+         public string? Tdid { get; set; } = "";
 
          [JsonPropertyName("udid")]
          public string? Udid { get; set; }
