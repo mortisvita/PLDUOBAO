@@ -47,6 +47,8 @@
 - **会话建立**：登录前自动访问授权页建立会话 Cookie，规避服务端风控拦截。
 - **图形验证码**：遇到滑块或点选验证码时弹出本地验证页面，完成交互后自动继续登录流程。
 - **代理隔离**：关键 HTTP 客户端显式禁用系统代理，避免本地调试工具残留设置导致连接失败。
+- **日志脱敏**：`access_token`、`sessionid`、身份证、实名等敏感字段统一打码后才输出，不进控制台明文。
+- **设备标识持久化**：`deviceid` / `udid` / `clientLoginSn` 跨登录固定，避免每次登录都被判为新设备触发风控。
 
 ### 网络游戏
 
@@ -57,6 +59,7 @@
 ### 服务器资源包（核心）
 
 - **自动预下载**：进服前扫描 `packcache`，把服务器下发的资源包 / 行为包全部落地。
+- **状态指纹快路径**：目录无变化时跳过全量扫描（~90ms），有新包才走完整流程，进服准备不卡顿。
 - **会话元数据重建**：`contents.json`、`folder_md5.json`、清单文件每次下载都会重新加密且长度漂移，部署器按 `(uuid, 包内相对路径)` 从真·明文语料精确取回。
 - **目录名对齐**：部署目录使用服务端 `CLIENT addon list` 要求的英文内部名（如 `FashionAnimationAddon_ResourcePack` 而非界面显示名），名字不符会让游戏回退到加密副本。
 - **单清单原则**：每个包只写一个清单文件，避免同一 uuid 被载入两次。
@@ -76,7 +79,7 @@
 - 可选显示游戏控制台窗口（便于调试）。
 - 设备信息伪装（绕过服务端的设备检测）。
 - 记录游戏时长统计（总时长 / 今日时长 / 启动次数）。
-- Python 兼容层注入与 `.pyc` 头部修复。
+- 平台标识补丁（进程内存等长替换，纯 C#，不注入 DLL）。
 
 ### 外观与个性化
 
@@ -153,20 +156,15 @@
 ```
 PLDUOBAO/
 ├── Assets/                     静态资源（图标等）
-├── docs/                       开发文档（需求 / 架构 / 规范 / 门禁 / ADR）
-├── scripts/                    构建、检查、发布、Git 初始化脚本
 ├── Lib/
 │   └── PESign.cs               PE 签名算法实现
-├── Native/
-│   ├── PLDUOBAO.DeviceSpoof64.exe   设备信息伪装组件
-│   └── PyCodeExecuter64.dll         本地 Python 执行器
 ├── Network/
 │   ├── Com4399/
 │   │   ├── Captcha/            滑块 / 点选验证码处理
 │   │   ├── SDK/                4399 SDK 设备与 OAuth 模型
 │   │   └── X4399Service.cs     4399 登录与授权主流程
 │   ├── MPay/                   网易支付 / 扫码登录
-│   ├── Mgb/                    MGB SDK 会话
+│   ├── Mgb/                    MGB SDK 会话（uni_sauth / MergeNeteaseSession）
 │   ├── Netease/
 │   │   ├── NetworkSDK/         网易 PMPH 协议实现
 │   │   │   ├── LoginAuth/      PEAuth 认证、G79 协议、签名
@@ -186,7 +184,7 @@ PLDUOBAO/
 │   │   ├── Encrypto.cs         AES 加解密与 HWID
 │   │   └── Netease_XXTEA.cs    XXTEA 算法
 │   ├── HTTP/                   参数构造工具
-│   └── LocalAuthServer/        本地鉴权服务（Python 注入）
+│   └── LocalAuthServer/        本地鉴权服务
 ├── SDK/
 │   ├── LocalAccountManager.cs  账户列表管理
 │   ├── UserConfig.cs           配置模型
@@ -212,13 +210,24 @@ PLDUOBAO/
 │   │   └── NavigationFrame      页面转场
 │   └── UCFirstLaunchTheme.axaml   首次启动主题选择
 └── Util/
+    ├── PlatformPatcher.cs      进程内存补丁（跨版本，不注入 DLL）
+    ├── DeviceProfile.cs        204 款 Android 机型池 + 档案生成
+    ├── DeviceIdentity.cs       设备标识持久化（udid / mac / clientLoginSn）
+    ├── LogRedactor.cs          日志脱敏（access_token / sessionid / 身份证等）
     ├── PathUtils.cs            路径与配置管理
     ├── GameLauncher.cs         游戏启动
     ├── GamePlayTracker.cs      时长统计
     ├── SkinPreviewer.cs        皮肤渲染
     ├── RenderEngineHelper.cs   渲染引擎切换
-    ├── DiscordRPCManager.cs    Discord 状态同步
     ├── LogSys.cs               日志系统
+    ├── CJKPathGuard.cs         CJK 路径检测
+    ├── NetworkUtil.cs          网络工具
+    ├── TokenUtil.cs            令牌工具
+    ├── NameGenerator.cs        名称生成
+    ├── RandomDeviceSpoof.cs    随机设备生成
+    ├── Win32NativeAPI.cs       Win32 原生 API
+    ├── AnimationHelper.cs      动画辅助
+    ├── RelayCommand.cs         MVVM 命令
     └── ...                     其他工具类
 ```
 
@@ -288,18 +297,12 @@ dotnet publish PLDUOBAO.csproj -c Release
 
 ### 辅助脚本
 
-| 脚本 | 作用 |
-|---|---|
-| `scripts/build.ps1` | 一键构建 |
-| `scripts/check.ps1` | 质量门禁检查 |
-| `scripts/release.ps1` | 发布打包 |
-| `scripts/setup-git.ps1` | Git 钩子与本地配置初始化 |
+无外部脚本依赖。构建 / 发布均通过 `dotnet` 命令行完成。
 
 ### 注意事项
 
 - **管理员权限**：`app.manifest` 已声明 `requireAdministrator`，编译后无需手动提权。
 - **中文路径**：`CJKPathGuard` 会在启动时检查，路径含 CJK 字符则弹窗退出。
-- **原生依赖**：`Native/` 下的两个文件会被复制到输出目录，缺少会导致设备伪装功能失效。
 
 ---
 
@@ -397,7 +400,7 @@ McpResourceSync.WatchAndDeployAsync()   每 2 秒扫 packcache，最多 8 分钟
 
 ### 启动时提示"当前程序所在路径包含中文"
 
-将整个程序目录移动到纯英文路径下。这是硬性限制，与 Python 注入组件的路径解析有关。
+将整个程序目录移动到纯英文路径下。这是硬性限制，启动器启动游戏时对路径解析有此要求。
 
 ### 登录提示"该Cookie已过期"
 
@@ -468,8 +471,8 @@ POST g79*.minecraft.cn/pe-authentication    ← 网易鉴权
 启动游戏时，程序会：
 
 1. 在本地启动一个 HTTP 服务（`127.0.0.1`），模拟网易鉴权端点。
-2. 注入 Python 兼容层（`PyCodeExecuter64.dll`），将游戏内的 `os.platform` 伪装为 `android`。
-3. 通过 `CPPLaunchConfig` 生成启动配置，将 `auth_server_url` 指向本地服务。
+2. 通过 `CPPLaunchConfig` 生成启动配置，将 `auth_server_url` 指向本地服务。
+3. 启动 `PlatformPatcher`（纯 C# 内存补丁），在游戏运行时等长替换平台标识字段。
 
 这样游戏启动时请求的鉴权会走到本地，由启动器返回已登录的会话。
 
@@ -479,12 +482,6 @@ POST g79*.minecraft.cn/pe-authentication    ← 网易鉴权
 
 | 文档 | 内容 |
 |---|---|
-| [docs/README.md](docs/README.md) | 文档索引 |
-| [docs/01-需求与版本管理.md](docs/01-需求与版本管理.md) | 需求来源、版本号规则、变更记录 |
-| [docs/02-架构与模块边界.md](docs/02-架构与模块边界.md) | 分层结构、模块职责、依赖方向 |
-| [docs/03-编码与提交规范.md](docs/03-编码与提交规范.md) | 命名、格式、提交信息格式 |
-| [docs/04-质量门禁与验收.md](docs/04-质量门禁与验收.md) | 构建 / 检查 / 验收标准 |
-| [docs/adr/](docs/adr/) | 架构决策记录 |
 | [MCP资源包逆向技术文档.md](MCP资源包逆向技术文档.md) | MCPK 容器格式、加密结构、逆向过程 |
 
 ---
