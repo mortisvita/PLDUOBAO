@@ -122,9 +122,105 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
 
         // ---------------- 部署 ----------------
 
+        // 上次部署完成后的状态指纹。
+        // 用于跳过「什么都没变」的重复扫描：进服准备资源时如果 packcache
+        // 和两个部署目录都没变化，就不必再跑一遍全量解析 + 逐文件比对。
+        private static string? _lastFingerprint;
+        private static readonly object FingerprintSync = new();
+
+        // 指纹文件：放在配置目录，跨进程持久化。
+        // 记录内容 = packcache 各包目录（名字+mtime+文件数）的哈希
+        //            + 两个部署根目录下的目录名集合哈希。
+        private static string FingerprintPath
+        {
+            get
+            {
+                string dir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".pl");
+                try { Directory.CreateDirectory(dir); } catch { }
+                return Path.Combine(dir, "mcpsync.state");
+            }
+        }
+
+        // 计算当前状态指纹。只读目录元信息，不读文件内容，很快。
+        private static string ComputeFingerprint()
+        {
+            var sb = new StringBuilder();
+
+            // 1) packcache：每个包目录的名字 + 最新写入时间 + 文件数
+            if (Directory.Exists(PackCacheRoot))
+            {
+                var dirs = Directory.GetDirectories(PackCacheRoot);
+                Array.Sort(dirs, StringComparer.OrdinalIgnoreCase);
+                foreach (string d in dirs)
+                {
+                    string name = Path.GetFileName(d);
+                    long mt = 0;
+                    int cnt = 0;
+                    try
+                    {
+                        mt = Directory.GetLastWriteTimeUtc(d).Ticks;
+                        cnt = Directory.GetFiles(d).Length;
+                    }
+                    catch { }
+                    sb.Append(name).Append('|').Append(mt).Append('|').Append(cnt).Append(';');
+                }
+            }
+
+            // 2) 部署根目录：有哪些包目录
+            foreach (string root in new[] { ResourcePacksRoot, BehaviorPacksRoot })
+            {
+                sb.Append('#');
+                if (Directory.Exists(root))
+                {
+                    var ds = Directory.GetDirectories(root);
+                    Array.Sort(ds, StringComparer.OrdinalIgnoreCase);
+                    foreach (string d in ds) sb.Append(Path.GetFileName(d)).Append(';');
+                }
+            }
+
+            // 3) 语料根目录是否存在（影响索引可用性）
+            foreach (string root in PlainRoots())
+                sb.Append(root).Append(Directory.Exists(root) ? '1' : '0');
+
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString()));
+            return Convert.ToHexString(hash).ToLowerInvariant();
+        }
+
+        private static string? LoadSavedFingerprint()
+        {
+            try
+            {
+                string p = FingerprintPath;
+                return File.Exists(p) ? File.ReadAllText(p).Trim() : null;
+            }
+            catch { return null; }
+        }
+
+        private static void SaveFingerprint(string fp)
+        {
+            try { File.WriteAllText(FingerprintPath, fp); } catch { }
+        }
+
+        // 是否需要重新部署。返回 true 表示可以跳过。
+        private static bool IsUpToDate(out string fingerprint)
+        {
+            fingerprint = ComputeFingerprint();
+            string? saved = _lastFingerprint ?? LoadSavedFingerprint();
+            return !string.IsNullOrEmpty(saved)
+                && string.Equals(saved, fingerprint, StringComparison.Ordinal);
+        }
+
         private static string Deploy()
         {
             if (!Directory.Exists(PackCacheRoot)) return "packcache not found, skip";
+
+            // 快路径：上次部署后状态没变，直接跳过全量扫描。
+            // 这一条能把进服的资源准备从「每次几秒」降到「几乎 0」。
+            if (IsUpToDate(out string fp))
+                return "up-to-date, skip";
+
             Index idx = GetIndex();
             Directory.CreateDirectory(ResourcePacksRoot);
             Directory.CreateDirectory(BehaviorPacksRoot);
@@ -235,16 +331,30 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
                 }
             }
 
+            // PNG 完整性抽查：只在本次真的写了新文件时才做。
+            // 全量遍历 + 逐个读入内存在包多时很慢，而没新增时上一轮的校验结果仍然有效。
             int pngOk = 0, pngBad = 0;
-            foreach (string f in SafeFiles(ResourcePacksRoot))
+            if (added > 0 || rebuilt > 0)
             {
-                if (!f.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) continue;
-                try { if (ValidPng(File.ReadAllBytes(f))) pngOk++; else pngBad++; }
-                catch { pngBad++; }
+                foreach (string f in SafeFiles(ResourcePacksRoot))
+                {
+                    if (!f.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) continue;
+                    try { if (ValidPng(File.ReadAllBytes(f))) pngOk++; else pngBad++; }
+                    catch { pngBad++; }
+                }
             }
+
+            // 记录本次完成后的状态指纹，下次进服可直接跳过。
+            // 只有本次没有任何失败项时才记，失败的话下轮仍要重试。
+            if (pngBad == 0)
+            {
+                SaveFingerprint(fp);
+                _lastFingerprint = fp;
+            }
+
             return string.Format("added={0} files={1} genuine={2} table={3} rebuilt={4} plain={5} PNG={6}/{7} bad={8} result={9}",
                 added, files, genuine, table, rebuilt, plain, pngOk, pngOk + pngBad, pngBad,
-                pngBad == 0 && pngOk > 0 ? "OK" : "CHECK");
+                pngBad == 0 && (pngOk > 0 || added == 0) ? "OK" : "CHECK");
         }
 
         // ---------------- 索引（一次性） ----------------
