@@ -18,9 +18,7 @@ namespace PLDUOBAO.Util
     {
         public static string AppCurrentPath => AppContext.BaseDirectory;
         
-        /// <summary>
-        /// PL 配置文件目录: %APPDATA%\.pl
-        /// </summary>
+        // PL 配置文件目录: %APPDATA%\.pl
         public static string ConfigPath
         {
             get
@@ -34,11 +32,9 @@ namespace PLDUOBAO.Util
             }
         }
         
-        public static string SpoofTool64Path => Path.Combine(AppCurrentPath, "Native", "PLDUOBAO.DeviceSpoof64.exe");
-        public static string PyCodeExecuter64Path => Path.Combine(AppCurrentPath, "Native", "PyCodeExecuter64.dll");
         public static string LaunchConfigPath => Path.Combine(AppCurrentPath, "launch.cppconfig");
         
-        /// <summary>MPay / 4399 等 .cds 设备文件目录（%APPDATA%\.pl\cds）</summary>
+        // MPay / 4399 等 .cds 设备文件目录（%APPDATA%\.pl\cds）
         public static string CdsStorePath
         {
             get
@@ -287,9 +283,7 @@ namespace PLDUOBAO.Util
 
         private static readonly char[] InvalidChars = { '<', '>', ':', '"', '/', '\\', '|', '?', '*' };
 
-        /// <summary>
-        /// 是否是合法的 Windows 文件名（不包含路径），不包含重名检查
-        /// </summary>
+        // 是否是合法的 Windows 文件名（不包含路径），不包含重名检查
         private static bool IsValidWindowsFileName(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
@@ -316,12 +310,10 @@ namespace PLDUOBAO.Util
             return true;
         }
 
-        /// <summary>
-        /// 检查在给定路径下，这个名字能否用来新建文件/文件夹
-        /// </summary>
-        /// <param name="directoryPath">目标目录</param>
-        /// <param name="fileName">要检查的文件名</param>
-        /// <returns>true=可用，false=不可用</returns>
+        // 检查在给定路径下，这个名字能否用来新建文件/文件夹
+        // directoryPath: 目标目录
+        // fileName: 要检查的文件名
+        // true=可用，false=不可用
         public static bool CanUseFileName(string directoryPath, string fileName)
         {
             // 首先检查文件名本身是否合法
@@ -392,9 +384,7 @@ namespace PLDUOBAO.Util
             }
         }
         
-        /// <summary>
-        /// 保存用户配置
-        /// </summary>
+        // 保存用户配置
         public static bool SaveConfig(UserConfig config)
         {
             try

@@ -29,9 +29,7 @@ namespace PLDUOBAO.SDK
         public string Username4399 { get; set; } = "";
         public string Password4399 { get; set; } = "";
         
-        /// <summary>
-        /// 账号备注/昵称，用于区分多账号
-        /// </summary>
+        // 账号备注/昵称，用于区分多账号
         public string? Nickname { get; set; }
 
         public UserCookie() { }

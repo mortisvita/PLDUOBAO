@@ -5,14 +5,10 @@ using System.Text;
 
 namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
 {
-    /// <summary>
-    /// 网易 pymarshal 的解密器（PycRepairer 的 C# 移植）。
-    ///
-    /// 移植自 github.com/unmcpk/pymarshal：
-    ///   convert.go / netease_types.go / netease_opcode.go / opcode.go
-    ///
-    /// 把网易魔改的 marshal 流还原成标准 Python 2.7 pyc。
-    /// </summary>
+    // 网易 pymarshal 的解密器（PycRepairer 的 C# 移植）。
+    // 移植自 github.com/unmcpk/pymarshal：
+    // convert.go / netease_types.go / netease_opcode.go / opcode.go
+    // 把网易魔改的 marshal 流还原成标准 Python 2.7 pyc。
     internal sealed class PycRepairer
     {
         // ---- 标准 marshal 类型 ----
@@ -59,11 +55,11 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
 
         public static readonly byte[] PycHeader = { 0x03, 0xF3, 0x0D, 0x0A, 0, 0, 0, 0 };
 
-        /// <summary>StringVersion=2 使用的 RC4 密钥。</summary>
+        // StringVersion=2 使用的 RC4 密钥。
         private static readonly byte[] Rc4KeyV2 =
             { 0x8d, 0x06, 0xe8, 0xc8, 0xb7, 0xd7, 0xb7, 0x28, 0x46, 0x51, 0xae, 0x04 };
 
-        /// <summary>StringVersion=1 使用的 RC4 密钥。</summary>
+        // StringVersion=1 使用的 RC4 密钥。
         private static readonly byte[] Rc4KeyV1 = { 0xA7, 0x0D, 0x37, 0x7A };
 
         private readonly byte[] _input;
@@ -76,7 +72,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             _pos = 0;
         }
 
-        /// <summary>把网易 marshal 流还原成标准 pyc 字节（含 PycHeader）。</summary>
+        // 把网易 marshal 流还原成标准 pyc 字节（含 PycHeader）。
         public static byte[] Repair(byte[] neteaseMarshal)
         {
             PycRepairer r = new(neteaseMarshal);
@@ -347,14 +343,11 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             output.Write(data, 0, data.Length);
         }
 
-        /// <summary>
-        /// 网易 code 对象的字段顺序被重排过（CodeVersion=2 的顺序）。
-        /// 必须按写入顺序读回，再按标准 Python 2.7 顺序写出。
-        ///
-        /// CodeVersion=2 的写入顺序（见 encrypt.go）：
-        ///   argcount, lnotab, cellvars, firstlineno, varnames, consts, name,
-        ///   stacksize, freevars, names, codeBuf, flags, filename, locals, opcodeType
-        /// </summary>
+        // 网易 code 对象的字段顺序被重排过（CodeVersion=2 的顺序）。
+        // 必须按写入顺序读回，再按标准 Python 2.7 顺序写出。
+        // CodeVersion=2 的写入顺序（见 encrypt.go）：
+        // argcount, lnotab, cellvars, firstlineno, varnames, consts, name,
+        // stacksize, freevars, names, codeBuf, flags, filename, locals, opcodeType
         private void RepairNetEaseCode(Stream output)
         {
             byte[] argcount = ReadBytes(4);
@@ -520,9 +513,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             ["SET_ADD"] = 146, ["MAP_ADD"] = 147,
         };
 
-        /// <summary>
-        /// 网易 opcode 表。id=0 对应 after-2.7 的那张表（本项目实际使用）。
-        /// </summary>
+        // 网易 opcode 表。id=0 对应 after-2.7 的那张表（本项目实际使用）。
         private static readonly Dictionary<uint, Dictionary<byte, string>> NeteaseOpcodes = new();
 
         static PycRepairer()

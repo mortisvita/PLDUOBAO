@@ -244,10 +244,10 @@ namespace PLDUOBAO.Network.Netease
             // 5. 可选：赋值给 array（取决于上下文）
             return responseHex;
 
-            //// 6. 转换为字节数组
+            // / 6. 转换为字节数组
             //byte[] responseBytes = responseHex.HexToBytes();
 
-            //// 7. 解密字节数组并返回结果
+            // / 7. 解密字节数组并返回结果
             //return x19Crypt.HttpDecrypt_g79v12(responseBytes);
         }
 

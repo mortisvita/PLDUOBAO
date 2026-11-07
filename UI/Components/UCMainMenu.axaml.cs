@@ -836,9 +836,7 @@ public partial class UCMainMenu : UserControl
         }
     }
     
-    /// <summary>
-    /// 验证皮肤图片尺寸是否合法
-    /// </summary>
+    // 验证皮肤图片尺寸是否合法
     private bool ValidateSkinSize(string path)
     {
         try
@@ -899,6 +897,13 @@ public partial class UCMainMenu : UserControl
             // 加载游戏设置
             tsShowGameConsole.IsChecked = uc.showGameConsole;
             tsEnableDeviceSpoof.IsChecked = uc.enableDeviceSpoof;
+
+            // 设备选择：恢复上次的品牌 → 型号，并同步当前档案
+            PopulateDeviceBrands(uc.deviceBrand);
+            PopulateDeviceModelsOfBrand(uc.deviceBrand, uc.deviceModelKey);
+            DeviceIdentity.Ensure();
+            DeviceProfile.SelectPersistent(uc.deviceModelKey, uc.deviceBrand,
+                                           DeviceIdentity.Udid, DeviceIdentity.Mac);
             _showOnlyPreferredGameDownloadVersions = uc.usePreferredGameDownloadVersions;
             UpdateGameDownloadVersionFilterButton();
             if (!string.IsNullOrWhiteSpace(uc.gameDownloadPath))
@@ -1080,6 +1085,139 @@ public partial class UCMainMenu : UserControl
         var config = PathUtils.LoadConfig() ?? new UserConfig();
         config.enableDeviceSpoof = tsEnableDeviceSpoof.IsChecked ?? true;
         PathUtils.SaveConfig(config);
+    }
+
+    // 设备选择是三级联动：品牌 → 型号 → 设备码。
+    // 设备码由型号固定推导（DeviceProfile.DeriveUdid），不可手改，
+    // 保证同一型号每次都得到同一个设备码。
+    private void PopulateDeviceBrands(string? selectedBrand)
+    {
+        if (cbDeviceBrand is null)
+        {
+            return;
+        }
+
+        var items = new List<DeviceBrandOption>
+        {
+            new(null, "随机（每次启动随机挑选）")
+        };
+
+        foreach (var brand in DeviceProfile.Brands)
+        {
+            items.Add(new DeviceBrandOption(brand, $"{brand}（{DeviceProfile.ModelsOf(brand).Count}）"));
+        }
+
+        cbDeviceBrand.ItemsSource = items;
+        cbDeviceBrand.SelectedItem =
+            items.FirstOrDefault(o => string.Equals(o.Brand, selectedBrand, StringComparison.OrdinalIgnoreCase))
+            ?? items[0];
+    }
+
+    // 按当前品牌刷新型号下拉。
+    private void PopulateDeviceModelsOfBrand(string? brand, string? selectedModelKey)
+    {
+        if (cbDeviceModel is null)
+        {
+            return;
+        }
+
+        var items = new List<DeviceModelOption>();
+
+        if (string.IsNullOrWhiteSpace(brand))
+        {
+            // 随机模式：型号下拉不可选，只显示提示
+            items.Add(new DeviceModelOption(null, "随机（每次启动随机挑选）"));
+            cbDeviceModel.ItemsSource = items;
+            cbDeviceModel.SelectedItem = items[0];
+            cbDeviceModel.IsEnabled = false;
+            UpdateDeviceIdDisplay(null);
+            return;
+        }
+
+        items.Add(new DeviceModelOption(null, "随机（该品牌内随机）"));
+
+        foreach (var entry in DeviceProfile.ModelsOf(brand))
+        {
+            items.Add(new DeviceModelOption(entry.Key, entry.Model, entry.DisplayName));
+        }
+
+        cbDeviceModel.IsEnabled = true;
+        cbDeviceModel.ItemsSource = items;
+        cbDeviceModel.SelectedItem =
+            items.FirstOrDefault(o => string.Equals(o.Key, selectedModelKey, StringComparison.OrdinalIgnoreCase))
+            ?? items[0];
+
+        UpdateDeviceIdDisplay((cbDeviceModel.SelectedItem as DeviceModelOption)?.DeviceLabel,
+                              (cbDeviceModel.SelectedItem as DeviceModelOption)?.Key);
+    }
+
+    // 刷新设备码显示。设备码每次选定设备时重新随机生成，
+    // 因此这里只展示「已生成/未生成」状态，具体值在启动时写入。
+    private void UpdateDeviceIdDisplay(string? deviceLabel, string? key = null)
+    {
+        if (tbDeviceId is null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            tbDeviceId.Text = "—（随机时启动才确定）";
+            return;
+        }
+
+        // 预览一个本机设备码样例，实际值在每次启动时重新生成
+        tbDeviceId.Text = $"{DeviceProfile.RandomHex16()}（每次设置型号重新随机）";
+    }
+
+    private void OnDeviceBrandChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (cbDeviceBrand?.SelectedItem is not DeviceBrandOption option)
+        {
+            return;
+        }
+
+        var config = PathUtils.LoadConfig() ?? new UserConfig();
+        config.deviceBrand = option.Brand;
+
+        // 换品牌时型号回到该品牌的第一项（随机）
+        config.deviceModelKey = null;
+        PathUtils.SaveConfig(config);
+
+        PopulateDeviceModelsOfBrand(option.Brand, null);
+        DeviceIdentity.Ensure();
+        DeviceProfile.SelectPersistent(null, option.Brand, DeviceIdentity.Udid, DeviceIdentity.Mac);
+    }
+
+    private void OnDeviceModelChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (cbDeviceModel?.SelectedItem is not DeviceModelOption option)
+        {
+            return;
+        }
+
+        var config = PathUtils.LoadConfig() ?? new UserConfig();
+        config.deviceModelKey = option.Key;
+        PathUtils.SaveConfig(config);
+
+        UpdateDeviceIdDisplay(option.DeviceLabel, option.Key);
+
+        // 立刻生效，本次启动游戏即使用新选定的机型
+        DeviceIdentity.Ensure();
+        DeviceProfile.SelectPersistent(option.Key, null, DeviceIdentity.Udid, DeviceIdentity.Mac);
+    }
+
+    // 品牌下拉项。Brand 为 null 表示随机。
+    private sealed record DeviceBrandOption(string? Brand, string DisplayName)
+    {
+        public override string ToString() => DisplayName;
+    }
+
+    // 型号下拉项。Key 为 null 表示该品牌内随机。
+    private sealed record DeviceModelOption(string? Key, string DeviceLabel, string Detail = "")
+    {
+        public override string ToString() =>
+            string.IsNullOrEmpty(Detail) ? DeviceLabel : $"{DeviceLabel} · {Detail}";
     }
 
     private void LoadRenderEngineSettings()

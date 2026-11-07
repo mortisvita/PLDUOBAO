@@ -62,12 +62,10 @@ namespace PLDUOBAO.Util
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CloseHandle(IntPtr hObject);
 
-        /// <summary>
-        /// 以 CREATE_NEW_CONSOLE 方式启动进程，让游戏拥有自己的控制台窗口。
-        /// 游戏是 GUI 子系统程序，ProcessStartInfo 的 UseShellExecute / CreateNoWindow
-        /// 对 GUI 程序都不会产生控制台，必须用该标志强制分配。
-        /// </summary>
-        /// <param name="processId">成功时返回游戏自身的 PID（设备伪装需要用到）。</param>
+        // 以 CREATE_NEW_CONSOLE 方式启动进程，让游戏拥有自己的控制台窗口。
+        // 游戏是 GUI 子系统程序，ProcessStartInfo 的 UseShellExecute / CreateNoWindow
+        // 对 GUI 程序都不会产生控制台，必须用该标志强制分配。
+        // processId: 成功时返回游戏自身的 PID（设备伪装需要用到）。
         public static bool TryStartWithNewConsole(string exePath, string arguments, out int processId, out int lastError)
         {
             processId = 0;

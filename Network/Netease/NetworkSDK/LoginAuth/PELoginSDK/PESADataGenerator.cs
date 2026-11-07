@@ -4,134 +4,65 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using PLDUOBAO.Util;
 
 namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth.PELoginSDK
 {
+    // 生成 pe-authentication 的 sa_data。
+    // 所有设备字段都取自 DeviceProfile.Current，与
+    // PlatformPatcher 改写的客户端上报标识保持同一份值。
+    // 网络服会把两处交叉比对，任何一处不一致都会被判成伪造设备，
+    // 后果就是自定义模型不下发（客户端表现为紫黑方块）。
     internal class PESADataGenerator
     {
-        private static readonly Random _random = new(DateTime.Now.Millisecond + DateTime.Now.Second + DateTime.Now.Day + DateTime.Now.Minute + DateTime.Now.Hour);
-
-        private static string RandomHex(int length) =>
-        Guid.NewGuid().ToString("N")[..length].ToUpper();
-
-        private static string RandomMacAddress() =>
-            $"02:00:00:{_random.Next(0x00, 0xFF):X2}:{_random.Next(0x00, 0xFF):X2}:{_random.Next(0x00, 0xFF):X2}";
-
-        private static string RandomDeviceModel() =>
-        _random.Next(0, 20) switch
-        {
-            0 => "HUAWEI MGA-AL00",
-            1 => "Redmi Note 11",
-            2 => "OPPO CPH2205",
-            3 => "Samsung SM-A515F",
-            4 => "Xiaomi Mi 11 Lite",
-            5 => "realme RMX3085",
-            6 => "vivo V2040",
-            7 => "HONOR JEF-AN00",
-            8 => "OnePlus AC2001",
-            9 => "Samsung SM-G9910",
-            10 => "Redmi K40",
-            11 => "Xiaomi 2201117TG",
-            12 => "OPPO A54",
-            13 => "realme GT Master",
-            14 => "vivo Y76 5G",
-            15 => "Samsung Galaxy M33",
-            16 => "Motorola Moto G60",
-            17 => "Nokia X20",
-            18 => "HUAWEI P40 Lite",
-            19 => "Redmi 10C",
-            _ => "OPPO Reno5"
-        };
-
-
-        private static string RandomCpuName() =>
-            _random.Next(0, 2) switch
-            {
-                0 => "Kirin 810",
-                1 => "Qualcomm Snapdragon 720G",
-                2 => "MediaTek Dimensity 800U",
-                3 => "Exynos 9611",
-                4 => "Snapdragon 732G",
-                5 => "Dimensity 920",
-                6 => "Snapdragon 870",
-                7 => "Kirin 985",
-                8 => "Snapdragon 695",
-                9 => "Dimensity 6100+",
-                10 => "Snapdragon 888",
-                11 => "Unisoc T610",
-                12 => "Exynos 1280",
-                13 => "Snapdragon 680",
-                14 => "Kirin 9000E",
-                15 => "Snapdragon 765G",
-                16 => "Dimensity 810",
-                17 => "Snapdragon 7 Gen 1",
-                18 => "Tensor G1",
-                19 => "Snapdragon 4 Gen 1",
-                _ => "MediaTek Helio G96"
-            };
-
-        private static (int width, int height) RandomResolution() =>
-            _random.Next(0, 2) switch
-            {
-                0 => (1600, 900),
-                1 => (2400, 1080),
-                2 => (2280, 1080),
-                3 => (2340, 1080),
-                4 => (2460, 1080),
-                5 => (2520, 1080),
-                6 => (2408, 1080),
-                7 => (2000, 1200),
-                8 => (1920, 1080),
-                9 => (2220, 1080),
-                10 => (1600, 720),
-                11 => (1440, 720),
-                12 => (2960, 1440),
-                13 => (3120, 1440),
-                14 => (2160, 1080),
-                15 => (2800, 1260),
-                16 => (2640, 1200),
-                17 => (2560, 1440),
-                18 => (2400, 1176),
-                19 => (2310, 1080),
-                _ => (2240, 1080)
-            };
-
-
+        // app_channel：必须与登录渠道一致。
+        // 4399 渠道走 allysdk.4399com（与 MgbService.GenerateSAuth 传入的 appChannel 相同）。
         private const string AppChannel = "allysdk.4399com";
-        private static string AppVersion => VerificationProfile.EngineVersion;
-        private const string SdkVer = "3.12.2";
+
+        // app_ver：客户端实际运行版本。真实 4399 客户端上报的是补丁版本
+        // （内存抓包实测 app_ver = 3.10.12.301658，与 patch_version 相同）。
+        private static string AppVersion => VerificationProfile.PatchVersion;
+
+        // sdk_ver：内嵌 unisdk 版本。真实 4399 客户端上报 3.18.0（内存抓包实测）。
+        private const string SdkVer = "3.18.0";
 
         public static string GenerateSaDataPE()
         {
-            var (width, height) = RandomResolution();
+            var dev = DeviceProfile.Current;
 
             var obj = new PESA_Data
             {
                 AppChannel = AppChannel,
                 AppVersion = AppVersion,
-                CoreNum = Environment.ProcessorCount.ToString(),
+                CoreNum = dev.CoreNum.ToString(),
                 CpuDigit = "64",
-                CpuHz = _random.Next(1600000, 3000000).ToString(), // 1.6 GHz - 3.0 GHz
-                CpuName = RandomCpuName(),
-                DeviceHeight = height.ToString(),
-                DeviceWidth = width.ToString(),
-                DeviceModel = RandomDeviceModel(),
+                CpuHz = dev.CpuHz,
+                CpuName = dev.CpuName,
+                DeviceHeight = dev.DeviceHeight.ToString(),
+                DeviceWidth = dev.DeviceWidth.ToString(),
+                // sa_data 上报厂商内部型号代码（例如 2211133C），不是中文设备名。
+                // 中文名只用于界面显示。
+                DeviceModel = dev.ModelCode,
                 Disk = "",
                 Emulator = 0,
-                FirstUdid = RandomHex(16),
+                FirstUdid = dev.Udid,
                 IsGuest = 0,
                 LauncherType = "PE_C++",
-                MacAddress = RandomMacAddress(),
+                MacAddress = dev.MacAddress,
                 Network = "CHANNEL_UNKNOW",
-                OsName = "android",
-                OsVersion = _random.Next(11, 15).ToString(), // Android 11–14（3.10 要求更高）
-                Ram = (_random.Next(4, 9) * 1024 * 1024 * 1024L).ToString(), // 4–8 GB
-                Rom = (_random.Next(32, 129) * 1024L * 1024L * 1024L).ToString(), // 32–128 GB
+                OsName = dev.OsName,
+                OsVersion = dev.OsVersion,
+                Ram = dev.RamBytes.ToString(),
+                Rom = dev.RomBytes.ToString(),
+
+                // 真实 4399 客户端在 root 过的设备上上报 true（内存抓包实测）。
+                // 固定 false 反而与其它字段的环境特征不一致。
                 Root = false,
+
                 SdkVersion = SdkVer,
                 StartType = "default",
                 Tdid = "",
-                Udid = RandomHex(16)
+                Udid = dev.Udid
             };
 
             // 真实客户端序列化后在末尾带一个换行符，服务端按原文校验，必须一致

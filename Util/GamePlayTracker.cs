@@ -9,9 +9,7 @@ using PLDUOBAO.SDK;
 
 namespace PLDUOBAO.Util
 {
-    /// <summary>
-    /// 游戏时长跟踪器
-    /// </summary>
+    // 游戏时长跟踪器
     internal static class GamePlayTracker
     {
         private static DateTime? _currentSessionStart;
@@ -20,9 +18,7 @@ namespace PLDUOBAO.Util
         private static Process? _currentProcess;
         private static CancellationTokenSource? _monitorCts;
 
-        /// <summary>
-        /// 开始跟踪游戏时长
-        /// </summary>
+        // 开始跟踪游戏时长
         public static void StartTracking(Process? process, string serverName, string serverType)
         {
             if (process == null) return;
@@ -65,9 +61,7 @@ namespace PLDUOBAO.Util
             }
         }
 
-        /// <summary>
-        /// 结束跟踪并记录游戏时长
-        /// </summary>
+        // 结束跟踪并记录游戏时长
         public static void EndTracking()
         {
             if (_currentSessionStart == null) return;
@@ -132,18 +126,14 @@ namespace PLDUOBAO.Util
             }
         }
 
-        /// <summary>
-        /// 获取游戏时长统计
-        /// </summary>
+        // 获取游戏时长统计
         public static GamePlayStats? GetStats()
         {
             var config = PathUtils.LoadConfig();
             return config?.gamePlayStats;
         }
 
-        /// <summary>
-        /// 格式化时长显示
-        /// </summary>
+        // 格式化时长显示
         public static string FormatDuration(long totalSeconds)
         {
             if (totalSeconds < 60)
@@ -159,9 +149,7 @@ namespace PLDUOBAO.Util
                 return $"{minutes}分钟{seconds}秒";
         }
 
-        /// <summary>
-        /// 获取今日游戏时长
-        /// </summary>
+        // 获取今日游戏时长
         public static long GetTodayPlayTime()
         {
             var stats = GetStats();

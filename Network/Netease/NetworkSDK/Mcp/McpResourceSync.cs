@@ -12,24 +12,19 @@ using Elysium.Core.Utils;
 
 namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
 {
-    /// <summary>
-    /// 服务器资源包解密部署器（幂等、增量、可在游戏运行中调用）。
-    ///
-    /// 实证机制（Chronal 同会话缓存 + mcp.log）：
-    ///   packcache 文件 = 4B magic(90 1D 30 01) + 36B GUID + 24B 零 + 密文；
-    ///   流密码无填充，密文长度 = 明文长度 + 64。静态资源用固定 key，跨会话
-    ///   密文逐字节相同；会话元数据每次重加密。
-    ///   *.mcp 是明文 MCPK 容器（4D 43 50 4B），直接落盘即可。
-    ///
-    /// 关键时序：游戏启动后才会按 mod_missmatch 补下载脚本包到 packcache
-    /// （mcp.log 19:37:44 部署 → 19:38:05 mod_download → 19:38:10 addon list）。
-    /// 因此 PrepareAsync（进服前）+ WatchAndDeployAsync（游戏运行中）都必须
-    /// 是幂等增量的：按 uuid 判定缺包，只补新的，绝不删除游戏正在读的目录。
-    ///
-    /// 真实明文语料：Chronal server-resources、games/11、D:/resource_packs.bak、
-    /// 当前 resource_packs/behavior_packs。用 (文件名, 精确长度) 精确定位，
-    /// 其余用真实 (C,P) 配对恢复的 keystream 表解密，仅会话元数据重建。
-    /// </summary>
+    // 服务器资源包解密部署器（幂等、增量、可在游戏运行中调用）。
+    // 实证机制（Chronal 同会话缓存 + mcp.log）：
+    // packcache 文件 = 4B magic(90 1D 30 01) + 36B GUID + 24B 零 + 密文；
+    // 流密码无填充，密文长度 = 明文长度 + 64。静态资源用固定 key，跨会话
+    // 密文逐字节相同；会话元数据每次重加密。
+    // *.mcp 是明文 MCPK 容器（4D 43 50 4B），直接落盘即可。
+    // 关键时序：游戏启动后才会按 mod_missmatch 补下载脚本包到 packcache
+    // （mcp.log 19:37:44 部署 → 19:38:05 mod_download → 19:38:10 addon list）。
+    // 因此 PrepareAsync（进服前）+ WatchAndDeployAsync（游戏运行中）都必须
+    // 是幂等增量的：按 uuid 判定缺包，只补新的，绝不删除游戏正在读的目录。
+    // 真实明文语料：Chronal server-resources、games/11、D:/resource_packs.bak、
+    // 当前 resource_packs/behavior_packs。用 (文件名, 精确长度) 精确定位，
+    // 其余用真实 (C,P) 配对恢复的 keystream 表解密，仅会话元数据重建。
     internal static class McpResourceSync
     {
         private static readonly byte[] Magic = { 0x90, 0x1D, 0x30, 0x01 };
@@ -57,7 +52,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             public byte[]? ManifestBytes;
         }
 
-        /// <summary>索引：真实明文语料 + Chronal 名字 + keystream 表（只构建一次）。</summary>
+        // 索引：真实明文语料 + Chronal 名字 + keystream 表（只构建一次）。
         private sealed class Index
         {
             public Dictionary<(string, int), byte[]> ByName = new();
@@ -67,12 +62,10 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             public Dictionary<byte[], byte> Tab = new(new ByteArrayComparer());
             public Dictionary<byte[], byte[]> Prefixes = new(new ByteArrayComparer());
 
-            /// <summary>
-            /// 按 (packUuid, 包内相对路径) 索引的真·明文。
-            /// 会话元数据（contents.json / folder_md5.json / manifest）每次下载都会被
-            /// 重新加密、长度漂移，靠 (文件名,长度) 匹配不到；但相对路径是稳定的，
-            /// 这条索引可以逐字节取回原件。
-            /// </summary>
+            // 按 (packUuid, 包内相对路径) 索引的真·明文。
+            // 会话元数据（contents.json / folder_md5.json / manifest）每次下载都会被
+            // 重新加密、长度漂移，靠 (文件名,长度) 匹配不到；但相对路径是稳定的，
+            // 这条索引可以逐字节取回原件。
             public Dictionary<(string, string), byte[]> ByUuidPath = new();
         }
 
@@ -84,7 +77,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
 
         // ---------------- 对外入口 ----------------
 
-        /// <summary>进服前：补齐当前 packcache 里所有缺失的包。</summary>
+        // 进服前：补齐当前 packcache 里所有缺失的包。
         public static Task<string> PrepareAsync(string itemId, string worldId = "114514")
         {
             return Task.Run(() =>
@@ -95,10 +88,8 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             });
         }
 
-        /// <summary>
-        /// 游戏启动后持续监控 packcache，增量部署服务器晚下载的包。
-        /// 幂等：已部署 uuid 不再处理；绝不删除运行中目录。
-        /// </summary>
+        // 游戏启动后持续监控 packcache，增量部署服务器晚下载的包。
+        // 幂等：已部署 uuid 不再处理；绝不删除运行中目录。
         public static async Task WatchAndDeployAsync(Process? gameProcess)
         {
             if (Interlocked.Exchange(ref _watching, 1) != 0) return;
@@ -409,10 +400,8 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
 
         // ---------------- 目录名对齐 ----------------
 
-        /// <summary>
-        /// 把已部署目录名改成服务端/语料使用的英文内部名。
-        /// 只做重命名，不动文件内容，不动正在被游戏读取的其它目录。
-        /// </summary>
+        // 把已部署目录名改成服务端/语料使用的英文内部名。
+        // 只做重命名，不动文件内容，不动正在被游戏读取的其它目录。
         private static void NormalizeDirNames(Index idx)
         {
             foreach (var pair in new[]
@@ -531,7 +520,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
         private static byte[]? Lookup2(Dictionary<(string, string), byte[]> d, (string, string) k) =>
             d.TryGetValue(k, out var v) ? v : null;
 
-        /// <summary>会话元数据：每次下载都会重新加密、长度漂移，不能靠长度匹配。</summary>
+        // 会话元数据：每次下载都会重新加密、长度漂移，不能靠长度匹配。
         private static bool IsSessionMeta(string rel)
         {
             string bn = Path.GetFileName(rel).ToLowerInvariant();
@@ -600,16 +589,13 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             return (double)good / b.Length > 0.95;
         }
 
-        /// <summary>
-        /// 重建会被会话重新加密的元数据（contents.json / folder_md5.json）。
-        ///
-        /// 实证规则（Chronal 真·明文 v69 全量核对，3957 条）：
-        ///   contents.json  = 列全部文件（含 contents / folder_md5 / manifest），CRLF，
-        ///                    "content" 数组，"version": 1
-        ///   folder_md5.json = 只列「除 manifest 之外」的文件，值是 **packcache 密文块的 md5**
-        ///                    （不是明文 md5；3951/3957 命中，差 4 个是 .mcp 打包头）
-        /// 因为混淆值直接来自密文，删除重下后无需知道会话 key 也能生成完全正确的内容。
-        /// </summary>
+        // 重建会被会话重新加密的元数据（contents.json / folder_md5.json）。
+        // 实证规则（Chronal 真·明文 v69 全量核对，3957 条）：
+        // contents.json  = 列全部文件（含 contents / folder_md5 / manifest），CRLF，
+        // "content" 数组，"version": 1
+        // folder_md5.json = 只列「除 manifest 之外」的文件，值是 **packcache 密文块的 md5**
+        // （不是明文 md5；3951/3957 命中，差 4 个是 .mcp 打包头）
+        // 因为混淆值直接来自密文，删除重下后无需知道会话 key 也能生成完全正确的内容。
         private static byte[] Rebuild(string rel, List<string> files,
                                       Dictionary<string, byte[]> cipherByRel,
                                       HashSet<string> manifestNames)

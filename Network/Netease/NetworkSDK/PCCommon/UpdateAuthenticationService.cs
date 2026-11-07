@@ -11,30 +11,24 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.PCCommon
 {
     internal class UpdateAuthenticationService
     {
-        /// <summary>
-        /// 当前运行的Token更新用户实体，
-        /// <para>如果更新时这个和 <see cref="NetworkLocalAPI"/> 的用户ID不一致，</para>
-        /// <para>优先采用 <see cref="NetworkLocalAPI"/> 的用户，自动取消更新token线程。</para>
-        /// </summary>
+        // 当前运行的Token更新用户实体，
+        // 如果更新时这个和 NetworkLocalAPI 的用户ID不一致，
+        // 优先采用 NetworkLocalAPI 的用户，自动取消更新token线程。
         public AuthcationResponseEntity? CurrentAvaliableUser { get; set; } = null;
 
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        /// <summary>
-        /// 创建Token更新服务，用于更新Token(默认 30 Min / Update)
-        /// </summary>
-        /// <param name="user">要更新的用户</param>
+        // 创建Token更新服务，用于更新Token(默认 30 Min / Update)
+        // user: 要更新的用户
         public UpdateAuthenticationService(AuthcationResponseEntity user)
         {
             CurrentAvaliableUser = user;
             Task.Factory.StartNew(UpdateCheckThread, TaskCreationOptions.LongRunning);
         }
 
-        /// <summary>
-        /// 后台常运行更新Token线程，
-        /// <para>该线程会在与 <see cref="NetworkLocalAPI"/> 的用户ID不一致时自动退出。</para>
-        /// </summary>
-        /// <returns>返回值是没有意义的</returns>
+        // 后台常运行更新Token线程，
+        // 该线程会在与 NetworkLocalAPI 的用户ID不一致时自动退出。
+        // 返回值是没有意义的
         private async Task UpdateCheckThread()
         {
             if (NetworkLocalAPI.CurrentAvaliableUser == null ||

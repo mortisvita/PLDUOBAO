@@ -197,9 +197,7 @@ public partial class UCDialogAccountExport : UserControl
         listAccounts.Children.Clear();
     }
 
-    /// <summary>
-    /// 显示并模态弹窗。每次都返回一个新实例，避免 FluentAvalonia ContentDialog overlay 复用导致的"卡住"问题。
-    /// </summary>
+    // 显示并模态弹窗。每次都返回一个新实例，避免 FluentAvalonia ContentDialog overlay 复用导致的"卡住"问题。
     public static UCDialogAccountExport? ShowModal(Grid container)
     {
         if (container == null) return null;
@@ -215,9 +213,7 @@ public partial class UCDialogAccountExport : UserControl
         return dlg;
     }
 
-    /// <summary>
-    /// 弹出动画 —— overlay 淡入 + 卡片缩放淡入。
-    /// </summary>
+    // 弹出动画 —— overlay 淡入 + 卡片缩放淡入。
     private void PlayOpenAnimation()
     {
         if (_disposed) return;

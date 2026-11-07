@@ -3,12 +3,9 @@ using System.Collections.Generic;
 
 namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
 {
-    /// <summary>
-    /// MCPK 的 Rotor 解密机。
-    ///
-    /// 移植自 github.com/Yeah114/unmcpk 的 mcpk/rotor.go。
-    /// 用于解开 .mcp 包中每个模块的 Rotor 加密层（zlib 之前的那一层）。
-    /// </summary>
+    // MCPK 的 Rotor 解密机。
+    // 移植自 github.com/Yeah114/unmcpk 的 mcpk/rotor.go。
+    // 用于解开 .mcp 包中每个模块的 Rotor 加密层（zlib 之前的那一层）。
     internal sealed class RotorDecryptor
     {
         private readonly short[] _key = new short[5];
@@ -134,7 +131,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
                 _advances[i] = 1;
         }
 
-        /// <summary>生成 E 转子并同步生成其逆置换 D 转子。</summary>
+        // 生成 E 转子并同步生成其逆置换 D 转子。
         private void PermuteRotor(byte[] e, byte[] d, int eOff, int dOff)
         {
             int i = Size;
@@ -153,7 +150,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             d[dOff + e[eOff]] = 0;
         }
 
-        /// <summary>初始化转子机。</summary>
+        // 初始化转子机。
         public void Init()
         {
             SetSeed();
@@ -196,7 +193,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             return (byte)tc;
         }
 
-        /// <summary>把整段数据就地解密。</summary>
+        // 把整段数据就地解密。
         public void DRegion(byte[] data, bool doInit)
         {
             if (doInit || !_isInited)

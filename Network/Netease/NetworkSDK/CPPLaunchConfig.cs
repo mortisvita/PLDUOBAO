@@ -290,16 +290,13 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK
         public string? urs { get; set; }
     }
 
-    /// <summary>
-    /// 皮肤的启动配置。
-    /// 关键：JSON 键必须是 <c>skin</c> —— 这是 Python 层读取的名字，
-    /// 它再转成 native 参数 <c>skinPath</c>（见 SET_SKIN_ERROR / PYTHON_CALL_NATIVE 那组）。
-    /// 直接写 skinPath 或 skin_path 都会被 Python 层忽略，native 收到空值后
-    /// 游戏立刻以 code 13 退出：{"code":13,"detail":{"skinPath":""}}。
-    /// </summary>
+    // 关键：JSON 键必须是 skin —— 这是 Python 层读取的名字，
+    // 它再转成 native 参数 skinPath（见 SET_SKIN_ERROR / PYTHON_CALL_NATIVE 那组）。
+    // 直接写 skinPath 或 skin_path 都会被 Python 层忽略，native 收到空值后
+    // 游戏立刻以 code 13 退出：{"code":13,"detail":{"skinPath":""}}。
     public class SkinInfo
     {
-        /// <summary>Python 层读取的键名，不能改。</summary>
+        // Python 层读取的键名，不能改。
         public string? skin { get; set; }
 
         public string? md5 { get; set; }

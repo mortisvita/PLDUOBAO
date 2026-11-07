@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -12,7 +12,7 @@ namespace Elysium.Core.Utils
     {
         internal static List<string> ASCIIArts = new List<string>
         {
-           "OMG IT'S DEBUGGER!"
+            "[PLDUOBAO] Debug console"
         };
 
 #if DEBUG
@@ -75,7 +75,7 @@ namespace Elysium.Core.Utils
                 {
                     string randomString = ASCIIArts[0];
                     Console.WriteLine(randomString);
-                    Warn("DEBUG控制台已启动");
+                    Warn("调试控制台已启动");
                 }
             }
 #endif

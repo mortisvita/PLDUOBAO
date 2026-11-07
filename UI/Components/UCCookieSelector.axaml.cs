@@ -197,7 +197,8 @@ public partial class UCCookieSelector : UserControl
 
         var result = await service.LoginAndAuthorize(username, password, verifyCode, service.CurrentCaptchaId);
 
-        LogSys.Log($"4399Cookie:{result}");
+        // result 是完整 sauth_json（含 sessionid / udid），只报摘要
+        LogSys.Log($"4399Cookie:{LogRedactor.Brief(result)}");
 
         if (string.IsNullOrEmpty(result))
             throw new Exception("获取 Cookie 失败，请检查账号密码");

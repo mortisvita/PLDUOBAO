@@ -575,6 +575,26 @@
                                     <ToggleSwitch x:Name="tsEnableDeviceSpoof" IsChecked="True" IsCheckedChanged="OnDeviceSpoofToggled"/>
                                 </ui:SettingsExpanderItem.Footer>
                             </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="设备品牌"
+                                                     Description="选择手机品牌（仅 Android 12+ / 8G 机型）">
+                                <ComboBox x:Name="cbDeviceBrand"
+                                          MinWidth="240"
+                                          PlaceholderText="随机"
+                                          SelectionChanged="OnDeviceBrandChanged"/>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="设备型号"
+                                                     Description="选择该品牌下的具体机型">
+                                <ComboBox x:Name="cbDeviceModel"
+                                          MinWidth="300"
+                                          PlaceholderText="先选品牌"
+                                          SelectionChanged="OnDeviceModelChanged"/>
+                            </ui:SettingsExpanderItem>
+                            <ui:SettingsExpanderItem Content="设备码"
+                                                     Description="由设备型号选择一次，型号码会随机一次">
+                                <SelectableTextBlock x:Name="tbDeviceId"
+                                                     FontFamily="Consolas,monospace"
+                                                     Text="—"/>
+                            </ui:SettingsExpanderItem>
                         </ui:SettingsExpander.Items>
                     </ui:SettingsExpander>
                     <ui:SettingsExpander Header="渲染引擎"

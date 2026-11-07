@@ -42,9 +42,7 @@ namespace PLDUOBAO.UI
             UpdateCardSelection();
         }
 
-        /// <summary>
-        /// 播放入场动画：标题 → 卡片 → 系统主题选项 → 底部按钮，依次错落淡入
-        /// </summary>
+        // 播放入场动画：标题 → 卡片 → 系统主题选项 → 底部按钮，依次错落淡入
         public async Task PlayEntranceAsync()
         {
             var slideUp = new Animation
@@ -87,9 +85,7 @@ namespace PLDUOBAO.UI
             await fadeIn.RunAsync(bottomBar);
         }
 
-        /// <summary>
-        /// 选择主题，更新卡片选中状态和 checkmark
-        /// </summary>
+        // 选择主题，更新卡片选中状态和 checkmark
         private void SelectTheme(AppTheme theme)
         {
             if (systemThemeToggle.IsChecked == true)

@@ -47,7 +47,7 @@ namespace PLDUOBAO.Network.MPay.SDK.Response
 
     internal class MPayQRCodeInfo
     {
-        /// <summary>0=未扫  1=已扫待确认  2=已确认</summary>
+        // 0=未扫  1=已扫待确认  2=已确认
         [JsonPropertyName("status")]
         public int Status { get; set; }
     }

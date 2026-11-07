@@ -15,9 +15,7 @@ namespace PLDUOBAO.SDK
         System = 2
     }
     
-    /// <summary>
-    /// 皮肤历史记录
-    /// </summary>
+    // 皮肤历史记录
     public class SkinHistoryItem
     {
         public string? Path { get; set; }
@@ -25,9 +23,7 @@ namespace PLDUOBAO.SDK
         public DateTime LastUsed { get; set; }
     }
     
-    /// <summary>
-    /// 游戏时长记录项
-    /// </summary>
+    // 游戏时长记录项
     public class GamePlayRecord
     {
         public string? ServerName { get; set; }
@@ -37,9 +33,7 @@ namespace PLDUOBAO.SDK
         public long DurationSeconds { get; set; }
     }
     
-    /// <summary>
-    /// 游戏时长统计
-    /// </summary>
+    // 游戏时长统计
     public class GamePlayStats
     {
         public long TotalPlayTimeSeconds { get; set; }
@@ -65,7 +59,7 @@ namespace PLDUOBAO.SDK
         // 主题设置
         public AppTheme theme { get; set; } = AppTheme.System;
 
-        /// <summary>首次启动主题引导是否已完成（写入 userconfig.ini）</summary>
+        // 首次启动主题引导是否已完成（写入 userconfig.ini）
         public bool firstLaunchDone { get; set; }
         
         // 自定义强调色 (ARGB 格式，null 表示跟随系统)
@@ -80,6 +74,25 @@ namespace PLDUOBAO.SDK
 
         // 设备绕过设置
         public bool enableDeviceSpoof { get; set; } = true;
+
+        // 选定的设备品牌。为空表示随机。
+        public string? deviceBrand { get; set; }
+
+        // 选定的设备型号 Key。为空或 random 时在该品牌内随机。
+        public string? deviceModelKey { get; set; }
+
+        // 持久化的设备标识（16 位小写 hex）。
+        // 渠道 sauth 的 deviceid/udid、sa_data 的 udid/first_udid 共用这个值。
+        // 每次登录重新随机会被 4399 判定为「新设备异常登录」(403/subcode 15)，
+        // 触发短信安全验证，因此必须跨会话固定。
+        public string? deviceUdid { get; set; }
+
+        // 与 deviceUdid 配对的 MAC（02:00:00:XX:XX:XX）。
+        public string? deviceMac { get; set; }
+
+        // 持久化的渠道 client_login_sn（32 位大写 hex）。
+        // 同样用于避免每次登录都被当作新会话。
+        public string? clientLoginSn { get; set; }
 
         public bool usePreferredGameDownloadVersions { get; set; } = false;
         public string? gameDownloadPath { get; set; }

@@ -6,32 +6,27 @@ using System.Text;
 
 namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
 {
-    /// <summary>
-    /// .mcp（MCPK）资源包解析器。
-    ///
-    /// 格式（由 package_builder.go 定义）：
-    ///   [0:4]    "MCPK"
-    ///   [12:16]  groupTableStart (= 57)
-    ///   [16:20]  fileTableStart
-    ///   [20:24]  dataStart
-    ///   [24:..]  packageId
-    ///
-    ///   groupTable: 每项 12 字节 (id, offset, count)
-    ///   fileTable:  每项 16 字节 (file, offset, size, originSize)，offset 相对 dataStart
-    ///   data:       各模块 payload 依次排列
-    ///
-    /// 单个模块的解码链（encodeModule 的逆过程）：
-    ///   1. Rotor 解密（DRegion，6 转子，动态 key）
-    ///   2. zlib 解压
-    ///   3. 前 130 字节 XOR 0x9C
-    ///   4. 整体字节反转
-    ///   → 得到 pymarshal 加密的 pyc
-    /// </summary>
+    // .mcp（MCPK）资源包解析器。
+    // 格式（由 package_builder.go 定义）：
+    // [0:4]    "MCPK"
+    // [12:16]  groupTableStart (= 57)
+    // [16:20]  fileTableStart
+    // [20:24]  dataStart
+    // [24:..]  packageId
+    // groupTable: 每项 12 字节 (id, offset, count)
+    // fileTable:  每项 16 字节 (file, offset, size, originSize)，offset 相对 dataStart
+    // data:       各模块 payload 依次排列
+    // 单个模块的解码链（encodeModule 的逆过程）：
+    // 1. Rotor 解密（DRegion，6 转子，动态 key）
+    // 2. zlib 解压
+    // 3. 前 130 字节 XOR 0x9C
+    // 4. 整体字节反转
+    // → 得到 pymarshal 加密的 pyc
     internal sealed class McpPackage
     {
         private const int HeaderSize = 57;
 
-        /// <summary>encodeModule 使用的动态密钥（与 Chronal PackageTool 一致）。</summary>
+        // encodeModule 使用的动态密钥（与 Chronal PackageTool 一致）。
         private static readonly string DynamicKey = BuildDynamicKey();
 
         private static string BuildDynamicKey()
@@ -78,7 +73,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             GroupCount = groupCount;
         }
 
-        /// <summary>从文件加载 .mcp 包。</summary>
+        // 从文件加载 .mcp 包。
         public static McpPackage Load(string path)
         {
             byte[] data = File.ReadAllBytes(path);
@@ -131,7 +126,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             return pkg;
         }
 
-        /// <summary>取出第 <paramref name="index"/> 个模块的原始（仍加密的）payload。</summary>
+        // 取出第 index:  个模块的原始（仍加密的）payload。
         public byte[] GetRaw(int index)
         {
             Entry e = Entries[index];
@@ -145,9 +140,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             return raw;
         }
 
-        /// <summary>
-        /// 解码单个模块，返回 pymarshal 之后的字节（仍是加密的 pyc，尚未做 pymarshal 解密）。
-        /// </summary>
+        // 解码单个模块，返回 pymarshal 之后的字节（仍是加密的 pyc，尚未做 pymarshal 解密）。
         public static byte[] DecodeModule(byte[] raw)
         {
             // 1. Rotor 解密
@@ -169,7 +162,7 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.Mcp
             return inflated;
         }
 
-        /// <summary>zlib 解压（跳过 2 字节 zlib 头）。</summary>
+        // zlib 解压（跳过 2 字节 zlib 头）。
         private static byte[] Inflate(byte[] data)
         {
             // 先尝试标准 zlib

@@ -14,23 +14,20 @@ using PLDUOBAO.SDK.Native;
 using Mark;
 using Noya.LocalServer.Common.Extensions;
 using PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth.PELoginSDK.Exceptions;
+using PLDUOBAO.Util;
 using static PLDUOBAO.Network.Netease.NetworkLocalAPI;
 
 namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth
 {
     internal class PEAuth
     {
-        /// <summary>
-        /// 表示登录结果的状态枚举，具体包含：
-        /// <list type="bullet">
-        ///   <item><description><see cref="LoginState.Success"/> - 登录成功</description></item>
-        ///   <item><description><see cref="LoginState.TokenExpired"/> - Cookie过期，一般来说是渠道服特有特性</description></item>
-        ///   <item><description><see cref="LoginState.AccountBanned"/> - 账号被封禁，可能是被连锁了</description></item>
-        ///   <item><description><see cref="LoginState.InvaildCookie"/> - 无效的 Cookie，说明你的Cookie格式不对/太老了</description></item>
-        ///   <item><description><see cref="LoginState.InvaildDevice"/> - 非法设备，常被判定为"服务器维护"，实际上得看subcode和subMessage</description></item>
-        ///   <item><description><see cref="LoginState.Failed"/> - 登录失败</description></item>
-        /// </list>
-        /// </summary>
+        // 表示登录结果的状态枚举，具体包含：
+        // LoginState.Success - 登录成功
+        // LoginState.TokenExpired - Cookie过期，一般来说是渠道服特有特性
+        // LoginState.AccountBanned - 账号被封禁，可能是被连锁了
+        // LoginState.InvaildCookie - 无效的 Cookie，说明你的Cookie格式不对/太老了
+        // LoginState.InvaildDevice - 非法设备，常被判定为"服务器维护"，实际上得看subcode和subMessage
+        // LoginState.Failed - 登录失败
         public enum LoginState
         {
             Success,
@@ -70,15 +67,13 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth
             return ls;
         }
 
-        /// <summary>
-        /// 进行Netease G79 Protocal PE-Authentictaion验证
-        /// </summary>
-        /// <param name="sauth">可用的Cookie</param>
-        /// <returns>登录状态，如果为 <see cref="LoginState.Success"/> 则为成功，其他查看对应LoginState说明。</returns>
-        /// <exception cref="ArgumentNullException">Cookie为空或Cookie为不可见字符</exception>
-        /// <exception cref="ArgumentException">Cookie有毛病，一般是Cookie解析失败</exception>
-        /// <exception cref="Exception">其他错误</exception>
-        /// <exception cref="HttpRequestException">网爆炸了会遭遇的情况，很少见</exception>
+        // 进行Netease G79 Protocal PE-Authentictaion验证
+        // sauth: 可用的Cookie
+        // 登录状态，如果为 LoginState.Success 则为成功，其他查看对应LoginState说明。
+        // ArgumentNullException: Cookie为空或Cookie为不可见字符
+        // ArgumentException: Cookie有毛病，一般是Cookie解析失败
+        // Exception: 其他错误
+        // HttpRequestException: 网爆炸了会遭遇的情况，很少见
         public static async Task<LoginState> Login(string sauth)
         {
             if (string.IsNullOrWhiteSpace(sauth))
@@ -129,7 +124,8 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth
                 sign = Sign,
             }
             , PEAuthenticationContext.Default.PEAuthentication);
-            LogSys.Log($"Login Content: {LoginContent}");
+            // LoginContent 含 sa_data / sauth_json / sign，脱敏后再打印
+            LogSys.Log($"Login Content: {LogRedactor.Redact(LoginContent)}");
 
             string encryptedText = x19Crypt.HttpEncrypt_g79v12(Encoding.UTF8.GetBytes(LoginContent)).ToHex();
             using var stringContent = new StringContent(encryptedText, Encoding.UTF8, "application/json");
@@ -196,7 +192,11 @@ namespace PLDUOBAO.Network.Netease.NetworkSDK.LoginAuth
 
                     throw new LoginFailedException(optFailed.entity);
                 case 2001:
-
+                    // 服务端把这个码叫「客户端版本过低」，实测成因有三类：
+                    //   1) VerificationProfile 的渠道指纹与登录渠道不匹配（so hash 用错包）
+                    //   2) sauth 里缺网易侧会话（没跑过 mgbsdk uni_sauth 交换）
+                    //   3) message 拼接内容与服务端算出的不一致（sign 对不上）
+                    // 打出当时的完整上下文，便于定位。
                     LogSys.Warn("[PEAuth] code 2001 客户端版本异常");
                     LogSys.Warn($"  engine={ls.engineVersion}");
                     LogSys.Warn($"  soHash={ls.libminecraftpe}");

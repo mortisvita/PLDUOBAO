@@ -37,13 +37,9 @@
 
 	<ItemGroup>
 	  <AvaloniaXaml Remove="Memory\**" />
-	  <AvaloniaXaml Remove="scripts\**" />
 	  <Compile Remove="Memory\**" />
-	  <Compile Remove="scripts\**" />
 	  <EmbeddedResource Remove="Memory\**" />
-	  <EmbeddedResource Remove="scripts\**" />
 	  <None Remove="Memory\**" />
-	  <None Remove="scripts\**" />
 	  <Compile Remove="Network\MPay\MPay.cs" />
 	  <AvaloniaXaml Remove="auth-server\**" />
 	  <Compile Remove="auth-server\**" />
@@ -53,8 +49,8 @@
 	
 
 	<ItemGroup>
-	  <None Remove="Native\PLDUOBAO.DeviceSpoof64.exe" />
-	  <None Remove="Native\PyCodeExecuter64.dll" />
+	  <AvaloniaResource Include="Assets\**" />
+	  <AvaloniaResource Remove="auth-server\**" />
 	</ItemGroup>
 
 	<ItemGroup Label="Linker" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
@@ -85,12 +81,6 @@
 
 
 	<ItemGroup>
-	  <Content Include="Native\PLDUOBAO.DeviceSpoof64.exe">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Native\PyCodeExecuter64.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
 	  <AvaloniaResource Include="Assets\**" />
 	  <AvaloniaResource Remove="auth-server\**" />
 	</ItemGroup>

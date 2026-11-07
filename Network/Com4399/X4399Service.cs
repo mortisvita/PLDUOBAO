@@ -193,11 +193,9 @@ namespace PLDUOBAO.Network.Com4399
             return state;
         }
 
-        /// <summary>
-        /// 取得 oauth state 以及对应的 authorize.do 地址。
-        /// authorize.do 必须先被访问以建立会话 Cookie（USESSIONID），
-        /// 否则后续 loginAndAuthorize 会被 WAF 判定为异常请求并返回 202「请稍后再试」。
-        /// </summary>
+        // 取得 oauth state 以及对应的 authorize.do 地址。
+        // authorize.do 必须先被访问以建立会话 Cookie（USESSIONID），
+        // 否则后续 loginAndAuthorize 会被 WAF 判定为异常请求并返回 202「请稍后再试」。
         private async Task<(string state, string authorizeUrl)> RequestStateAndUrlAsync()
         {
             var response =
@@ -223,10 +221,8 @@ namespace PLDUOBAO.Network.Com4399
             return (state, resultUrl);
         }
 
-        /// <summary>
-        /// 预热登录会话：GET authorize.do 让服务端下发 USESSIONID / phlogact 等 Cookie。
-        /// 缺少这一步时，loginAndAuthorize 会被 4399 的 WAF 直接以 202「请稍后再试」拒绝。
-        /// </summary>
+        // 预热登录会话：GET authorize.do 让服务端下发 USESSIONID / phlogact 等 Cookie。
+        // 缺少这一步时，loginAndAuthorize 会被 4399 的 WAF 直接以 202「请稍后再试」拒绝。
         private async Task WarmUpLoginSessionAsync(string authorizeUrl)
         {
             if (string.IsNullOrEmpty(authorizeUrl))
@@ -402,7 +398,8 @@ namespace PLDUOBAO.Network.Com4399
             string text = await redirect.Content.ReadAsStringAsync();
 
             LogSys.Log($"[X4399Service] HttpStatus:{redirect.StatusCode}");
-            LogSys.Log($"[X4399Service] Content:{text}");
+            // 4399 返回的 body 可能含短信验证提示 / 实名信息，脱敏后再记录
+            LogSys.Log($"[X4399Service] Content:{LogRedactor.Redact(text)}");
 
             // 4399 风控：202 Accepted + “请稍后再试”，此时既无重定向也无错误关键字，
             // 必须在判空之前单独识别，否则会被误报成 “no redirect location”。
@@ -476,7 +473,8 @@ namespace PLDUOBAO.Network.Com4399
                 return await LoginAndAuthorize(username, password, await CaptchaHandler.HandleLoginCaptchaAsync(text2), null, retry + 1);
             }
 
-            LogSys.Log($"[X4399Service] UserInfoResponse:{text2}");
+            // UserInfoResponse 含 idcard / realname / access_token / sessionid，全部脱敏
+            LogSys.Log($"[X4399Service] UserInfoResponse:{LogRedactor.Redact(text2)}");
 
             X4399UserInfoResponse? entity4399UserInfoResponse = JsonSerializer.Deserialize(text2,
                 X4399UserInfoResponseContext.Default.X4399UserInfoResponse);
@@ -546,10 +544,10 @@ namespace PLDUOBAO.Network.Com4399
             //    throw new Exception($"[X4399Service] ParseQueryString got sth null.");
             //}
 
-            ////X4399UserInfoResult? result = entity4399UserInfoResponse.Result;
+            // /X4399UserInfoResult? result = entity4399UserInfoResponse.Result;
 
-            ////if (result == null)
-            ////    throw new Exception("[X4399Service] UserInfoResult is null.");
+            // /if (result == null)
+            // /    throw new Exception("[X4399Service] UserInfoResult is null.");
 
             //string SDKrequestUri = $"https://microgame.5054399.net/v2/service/sdk/info?callback=&queryStr=game_id%3D500352%26nick%3Dnull%26sig%3D{sig}%26uid%3D{uid}%26fcm%3D0%26show%3D1%26isCrossDomain%3D1%26rand_time%3D{randtime}%26ptusertype%3D4399%26time%3D{time}%26validateState%3D{validateState}%26username%3D{username.ToLower()}&_={time}";
 
@@ -593,20 +591,30 @@ namespace PLDUOBAO.Network.Com4399
             var sdk_json = _mgbSdk.GenerateSAuth(username.ToLower(), user.Uid.ToString(), user.State , user.RegTime.ToString(), "allysdk.4399com","4399com", "ad");
 
             //var sdk_json_old = _mgbSdk.GenerateSAuthWithOld(username.ToLower(), uid, token, time, "4399pc", "pc");
-            LogSys.Log($"[X4399Service] sdkJson:{sdk_json}");
+            LogSys.Log($"[X4399Service] sdkJson:{LogRedactor.Redact(sdk_json)}");
 
             //LogSys.Log($"[X4399Service] sdkJsonold:{sdk_json_old}");
 
             //LogSys.Log($"[X4399Service] 这俩一样吗？ Result:{sdk_json == sdk_json_old}");
 
+            // ---- 关键步骤：向网易换取正式会话 ----
+            // pe-authentication 需要的是网易侧会话（oauth2.access_token + chl_sdk_json.sign），
+            // 只拿渠道原始 sauth 去请求会被判定为 code 2001「客户端版本过低」。
             string? unisdkB64 = null;
             try
             {
                 unisdkB64 = await _mgbSdk.AuthSession(sdk_json);
             }
+            catch (InvalidOperationException)
+            {
+                // 渠道侧风控（403/subcode 15 等）：必须透传给 UI，
+                // 不能退回原始 sauth，否则 pe-authentication 只会回「服务器维护中」，
+                // 用户完全看不到真实原因。
+                throw;
+            }
             catch (Exception ex)
             {
-                LogSys.Warn($"[X4399Service] AuthSession failed: {ex.Message}");
+                LogSys.Warn($"[X4399Service] AuthSession failed: {LogRedactor.Redact(ex.Message)}");
             }
 
             string sauthForPE = sdk_json;
@@ -615,7 +623,7 @@ namespace PLDUOBAO.Network.Com4399
                 string? unisdkJson = MgbService.DecodeUnisdkLoginJson(unisdkB64);
                 if (!string.IsNullOrEmpty(unisdkJson))
                 {
-                    LogSys.Log($"[X4399Service] unisdk_login_json:{unisdkJson}");
+                    LogSys.Log($"[X4399Service] unisdk_login_json:{LogRedactor.Redact(unisdkJson)}");
                     sauthForPE = MergeNeteaseSession(sdk_json, unisdkJson) ?? sdk_json;
                 }
             }
@@ -640,13 +648,19 @@ namespace PLDUOBAO.Network.Com4399
 
             //string newtonjson = JsonConvert.SerializeObject(sauth);
 
-            LogSys.Log($"用System.Text.json的：{finalJson}");
+            // finalJson 里是完整的 sauth_json（含 sessionid / udid），只报摘要
+            LogSys.Log($"用System.Text.json的：{LogRedactor.Brief(finalJson)}");
             //LogSys.Log($"用Newtonsoft.Json的：{newtonjson}");
 
             //LogSys.Log($"这俩一样吗？ Result:{finalJson == newtonjson}");
 
             return finalJson;
         }
+
+        // 把网易侧会话（unisdk_login_json）合并进渠道 sauth。
+        // 渠道 sauth 提供：app_channel / login_channel / sdkuid / sessionid（渠道凭据）
+        // 网易会话提供：oauth2.access_token（JWT）/ chl_sdk_json.sign / aid / udid
+        // 合并后 sauth 同时具备两层凭据，pe-authentication 才能通过。
         private static string? MergeNeteaseSession(string channelSauth, string unisdkJson)
         {
             try

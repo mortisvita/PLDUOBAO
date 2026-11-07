@@ -2,9 +2,7 @@ using System;
 
 namespace PLDUOBAO.Util;
 
-/// <summary>
-/// 国际服风格随机名字生成器
-/// </summary>
+// 国际服风格随机名字生成器
 internal static class InternationalNameGenerator
 {
     private static readonly Random _random = new();

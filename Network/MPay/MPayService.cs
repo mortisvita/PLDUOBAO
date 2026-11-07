@@ -150,7 +150,7 @@ namespace PLDUOBAO.Network.MPay
             return await sendTask;
         }
 
-        /// <summary>扫码 API 使用的 game_id（与设备 game 不同，与遗留 MPay.cs 一致）</summary>
+        // 扫码 API 使用的 game_id（与设备 game 不同，与遗留 MPay.cs 一致）
         private const string QrMpayGameId = "aecglf6ee4aaaarz-g-a50";
 
         public enum QrLoginPollKind { Waiting, Completed, Failed }
@@ -184,7 +184,7 @@ namespace PLDUOBAO.Network.MPay
             return await resp.Content.ReadAsByteArrayAsync(ct);
         }
 
-        /// <summary>创建登录二维码（与 Network/MPay/MPay.cs 中 GetQRCode 同源）</summary>
+        // 创建登录二维码（与 Network/MPay/MPay.cs 中 GetQRCode 同源）
         public async Task<(string Uuid, byte[] PngBytes)> CreateQrLoginPngAsync(CancellationToken ct = default)
         {
             string deviceId = _device!.Id;
@@ -297,7 +297,7 @@ namespace PLDUOBAO.Network.MPay
             return ticketDoc.Data.Ticket;
         }
 
-        /// <summary>扫码完成后换 SAUTH JSON 字符串（可直接 PEAuth.Login）</summary>
+        // 扫码完成后换 SAUTH JSON 字符串（可直接 PEAuth.Login）
         public async Task<string> CompleteQrLoginAsync(string code, string loginChannel, CancellationToken ct = default)
         {
             if (string.Equals(loginChannel, "netease", StringComparison.OrdinalIgnoreCase))

@@ -60,9 +60,7 @@ namespace PLDUOBAO.SDK
             SaveUsers();
         }
 
-        /// <summary>
-        /// 改名后同步更新账号列表里当前登录账号的显示名。
-        /// </summary>
+        // 改名后同步更新账号列表里当前登录账号的显示名。
         public static bool UpdateCurrentUserDisplayName(string oldName, string newName)
         {
             if (string.IsNullOrEmpty(newName))
@@ -154,9 +152,7 @@ namespace PLDUOBAO.SDK
 
     }
 
-    /// <summary>
-    /// 把传入的账户写入指定路径。失败返回 false。
-    /// </summary>
+    // 把传入的账户写入指定路径。失败返回 false。
     public static bool ExportUsers(List<UserCookie> users, string path)
     {
         if (users == null || users.Count == 0) return false;
